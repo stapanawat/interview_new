@@ -10,7 +10,7 @@ import AuditLogView from './components/AuditLogView';
 
 import { Users, Calendar, UserCheck, ShieldCheck, Plus, Sparkles, Clock, CheckCircle2, HeartHandshake } from 'lucide-react';
 
-export default function App() {
+function AdminApp() {
   const [activeTab, setActiveTab] = useState('applicants');
   const [currentUser, setCurrentUser] = useState(null); /*
     id: 'usr-1',
@@ -343,4 +343,41 @@ export default function App() {
       </div>
     </div>
   );
+}
+
+function PublicApplicationPage({ lineUserId }) {
+  return (
+    <JobApplicationForm
+      lineUserId={lineUserId}
+      onClose={() => window.location.assign('/')}
+      onSuccess={() => {}}
+    />
+  );
+}
+
+function getApplicationLinkParams() {
+  const url = new URL(window.location.href);
+  const normalizedPath = url.pathname.replace(/\/+$/, '').toLowerCase() || '/';
+  const isApplyPath = normalizedPath === '/apply';
+  const isLegacyApplyHash = url.hash.toLowerCase().startsWith('#apply');
+
+  if (!isApplyPath && !isLegacyApplyHash) return null;
+
+  const query = isLegacyApplyHash ? url.hash.slice('#apply'.length) : url.search;
+  return new URLSearchParams(query);
+}
+
+// The URL is intentionally handled outside the admin dashboard.  This keeps the
+// candidate's application link public and avoids opening the HR login/dashboard.
+export default function App() {
+  const applicationParams = getApplicationLinkParams();
+
+  // This route gate deliberately runs before AdminApp is mounted.  Therefore an
+  // application URL can never fall through to the dashboard, even without a LINE ID.
+  if (applicationParams) {
+    const params = applicationParams;
+    return <PublicApplicationPage lineUserId={params.get('lineUserId') || ''} />;
+  }
+
+  return <AdminApp />;
 }

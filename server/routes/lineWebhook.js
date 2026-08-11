@@ -64,7 +64,7 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
       await writeData(data);
 
       const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
-      const applicationUrl = `${baseUrl}/#apply?lineUserId=${encodeURIComponent(lineUserId)}`;
+      const applicationUrl = `${baseUrl}/apply?lineUserId=${encodeURIComponent(lineUserId)}`;
       const isApplicationRequest = /สมัครงาน|สวัสดี|สนใจ/i.test(text);
       const responseText = isApplicationRequest
         ? `ยินดีต้อนรับสู่ระบบรับสมัครงาน กรุณากรอกใบสมัครที่ ${applicationUrl}`

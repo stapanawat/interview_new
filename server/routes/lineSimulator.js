@@ -20,7 +20,7 @@ router.post('/send-message', async (req, res, next) => {
 
     if (/สมัครงาน|สวัสดี|สนใจ/.test(text)) {
       const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
-      const formUrl = `${baseUrl}/#apply?lineUserId=${encodeURIComponent(userId)}`;
+      const formUrl = `${baseUrl}/apply?lineUserId=${encodeURIComponent(userId)}`;
       data.lineMessages.push({
         id: `msg-bot-${Date.now()}`,
         lineUserId: userId,
