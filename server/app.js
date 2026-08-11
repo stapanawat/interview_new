@@ -9,12 +9,15 @@ const interviewsRoutes = require('./routes/interviews');
 const employeesRoutes = require('./routes/employees');
 const auditLogsRoutes = require('./routes/auditLogs');
 const lineSimulatorRoutes = require('./routes/lineSimulator');
+const lineWebhookRoutes = require('./routes/lineWebhook');
 
 const app = express();
 const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5000')
   .split(',').map((origin) => origin.trim()).filter(Boolean);
 
 app.use(cors({ origin: allowedOrigins }));
+// LINE signature verification requires the original request body, before JSON parsing.
+app.use('/api/line', lineWebhookRoutes);
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/applicants', applicantsRoutes);
