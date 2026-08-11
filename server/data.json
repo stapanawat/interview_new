@@ -1,0 +1,206 @@
+{
+  "users": [
+    {
+      "id": "usr-1",
+      "username": "admin",
+      "password": "password123",
+      "name": "สมชาย ใจดี (HR Manager)",
+      "role": "Super Admin",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+    },
+    {
+      "id": "usr-2",
+      "username": "hr_recruiter",
+      "password": "password123",
+      "name": "นภาพร รักษ์สุข (Recruiter)",
+      "role": "HR Specialist",
+      "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80"
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "log-1786443484632-930",
+      "timestamp": "2026-08-11T10:18:04.632Z",
+      "user": "admin",
+      "userName": "สมชาย ใจดี (HR Manager)",
+      "action": "LOGOUT",
+      "details": "ออกจากระบบเรียบร้อยแล้ว",
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
+    },
+    {
+      "id": "log-1786443412987-570",
+      "timestamp": "2026-08-11T10:16:52.987Z",
+      "user": "admin",
+      "userName": "สมชาย ใจดี (HR Manager)",
+      "action": "LOGOUT",
+      "details": "ออกจากระบบเรียบร้อยแล้ว",
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
+    },
+    {
+      "id": "log-101",
+      "timestamp": "2026-08-11T05:14:29.844Z",
+      "user": "admin",
+      "userName": "สมชาย ใจดี (HR Manager)",
+      "action": "LOGIN",
+      "details": "เข้าสู่ระบบสำเร็จผ่านทาง Web Admin Portal",
+      "ip": "127.0.0.1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+    },
+    {
+      "id": "log-102",
+      "timestamp": "2026-08-11T08:14:29.845Z",
+      "user": "admin",
+      "userName": "สมชาย ใจดี (HR Manager)",
+      "action": "VIEW_APPLICANTS",
+      "details": "เข้าตรวจเช็ครายการผู้สมัครงานใหม่ประจำวัน",
+      "ip": "127.0.0.1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+    }
+  ],
+  "applicants": [
+    {
+      "id": "app-001",
+      "name": "พิชญา สุวรรณเวช",
+      "email": "pichaya.s@gmail.com",
+      "phone": "081-234-5678",
+      "position": "Senior Frontend Developer",
+      "expectedSalary": 65000,
+      "lineUserId": "U1002948182",
+      "lineDisplayName": "Pichaya_Dev",
+      "appliedAt": "2026-08-08T10:14:29.845Z",
+      "status": "Passed",
+      "experience": "5 ปี (React, TypeScript, Next.js)",
+      "notes": "ผลการสัมภาษณ์ทางเทคนิคยอดเยี่ยม มีความกระตือรือร้นสูง พร้อมเริ่มงานได้ทันที",
+      "interviewId": "int-001"
+    },
+    {
+      "id": "app-002",
+      "name": "ณัฐพงษ์ วงศ์สว่าง",
+      "email": "nattapong.dev@outlook.com",
+      "phone": "089-876-5432",
+      "position": "UX/UI Designer",
+      "expectedSalary": 48000,
+      "lineUserId": "U992817263",
+      "lineDisplayName": "Nattapong UI",
+      "appliedAt": "2026-08-09T10:14:29.845Z",
+      "status": "Confirmed",
+      "experience": "3 ปี (Figma, Design System, Pastel UI)",
+      "notes": "มี Portfolio ผลงามโดดเด่น สไตล์งานมินิมอลสบายตา",
+      "interviewId": "int-002"
+    },
+    {
+      "id": "app-003",
+      "name": "กมลชนก เลิศวิทยา",
+      "email": "kamonchanok.l@hotmail.com",
+      "phone": "086-555-1234",
+      "position": "Fullstack Developer",
+      "expectedSalary": 55000,
+      "lineUserId": "U883719204",
+      "lineDisplayName": "Kamon_Code",
+      "appliedAt": "2026-08-10T10:14:29.845Z",
+      "status": "Pending_Confirmation",
+      "experience": "4 ปี (Node.js, Vue, PostgreSQL)",
+      "notes": "ผ่านการคัดเลือกเรซูเม่เรียบร้อย รอ candidate ตอบรับวันสัมภาษณ์ในไลน์ (มีระบบเตือน 12 ชม.)",
+      "interviewId": "int-003"
+    }
+  ],
+  "interviews": [
+    {
+      "id": "int-001",
+      "applicantId": "app-001",
+      "applicantName": "พิชญา สุวรรณเวช",
+      "position": "Senior Frontend Developer",
+      "lineUserId": "U1002948182",
+      "interviewDate": "2026-08-10",
+      "timeSlot": "14:00 - 15:00",
+      "format": "Online (Google Meet)",
+      "locationOrLink": "https://meet.google.com/abc-defg-hij",
+      "confirmationStatus": "Confirmed",
+      "reminderSentAt": "2026-08-09T10:14:29.845Z",
+      "reminderDeadline": "2026-08-09T22:14:29.845Z",
+      "createdBy": "admin"
+    },
+    {
+      "id": "int-002",
+      "applicantId": "app-002",
+      "applicantName": "ณัฐพงษ์ วงศ์สว่าง",
+      "position": "UX/UI Designer",
+      "lineUserId": "U992817263",
+      "interviewDate": "2026-08-12",
+      "timeSlot": "10:30 - 11:30",
+      "format": "On-Site",
+      "locationOrLink": "ห้องประชุม Pastel Room ชั้น 4",
+      "confirmationStatus": "Confirmed",
+      "reminderSentAt": "2026-08-11T00:14:29.845Z",
+      "reminderDeadline": "2026-08-11T12:14:29.845Z",
+      "createdBy": "admin"
+    },
+    {
+      "id": "int-003",
+      "applicantId": "app-003",
+      "applicantName": "กมลชนก เลิศวิทยา",
+      "position": "Fullstack Developer",
+      "lineUserId": "U883719204",
+      "interviewDate": "2026-08-12",
+      "timeSlot": "15:00 - 16:00",
+      "format": "Online (Google Meet)",
+      "locationOrLink": "https://meet.google.com/xyz-uvwx-rst",
+      "confirmationStatus": "Pending_Confirmation",
+      "reminderSentAt": "2026-08-11T08:14:29.845Z",
+      "reminderDeadline": "2026-08-11T20:14:29.845Z",
+      "createdBy": "admin"
+    }
+  ],
+  "employees": [
+    {
+      "id": "emp-001",
+      "name": "พิชญา สุวรรณเวช",
+      "email": "pichaya.s@gmail.com",
+      "phone": "081-234-5678",
+      "position": "Senior Frontend Developer",
+      "monthlySalary": 65000,
+      "hiredDate": "2026-08-10",
+      "notes": "ย้ายจากสถานะสมัครงาน (ผ่านสัมภาษณ์) วันที่เริ่มงานคือวันที่ 1 ของเดือนถัดไป มีความเชี่ยวชาญ React & Design System",
+      "status": "Active",
+      "sourceApplicantId": "app-001"
+    },
+    {
+      "id": "emp-002",
+      "name": "อนันต์ ทรัพย์มหาศาล",
+      "email": "anan.t@company.co.th",
+      "phone": "082-999-8877",
+      "position": "Backend Tech Lead",
+      "monthlySalary": 85000,
+      "hiredDate": "2024-01-15",
+      "notes": "ดูแลโครงสร้างพื้นฐานระบบ Database และ API Security มีโอทีและเบี้ยขยันเพิ่มเติม",
+      "status": "Active",
+      "sourceApplicantId": null
+    }
+  ],
+  "lineMessages": [
+    {
+      "id": "msg-1",
+      "lineUserId": "U1002948182",
+      "sender": "system",
+      "text": "สวัสดีค่ะ ยินดีต้อนรับสู่ระบบรับสมัครพนักงาน กรุณากรอกแบบฟอร์มสมัครงานผ่านลิงก์นี้ค่ะ: [สมัครงานที่นี่]",
+      "timestamp": "2026-08-08T10:14:29.845Z"
+    },
+    {
+      "id": "msg-2",
+      "lineUserId": "U883719204",
+      "sender": "system",
+      "text": "แจ้งเตือนนัดสัมภาษณ์งานตำแหน่ง Fullstack Developer ในวันที่พรุ่งนี้ เวลา 15:00 - 16:00 น.\n\nกรุณายืนยันเข้าร่วมภายใน 12 ชั่วโมง หากไม่ตอบรับระบบจะยกเลิกสิทธิ์อัตโนมัติ",
+      "timestamp": "2026-08-11T08:14:29.845Z",
+      "requiresConfirmation": true,
+      "interviewId": "int-003"
+    }
+  ],
+  "users": [],
+  "auditLogs": [],
+  "applicants": [],
+  "interviews": [],
+  "employees": [],
+  "lineMessages": []
+}
