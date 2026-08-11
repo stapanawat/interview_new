@@ -149,7 +149,7 @@ export default function EmployeeManagement({ employees, positions, onRefresh, cu
       {/* Main Employee Table */}
       <div className="pastel-card" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+          <table style={{ width: '100%', minWidth: 1120, borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
             <thead>
               <tr style={{ background: '#F8F9FA', borderBottom: '2px solid #EAEAEA', color: '#4A5568' }}>
                 <th style={{ padding: '16px 20px', fontWeight: 600 }}>รายชื่อพนักงาน (Name)</th>
@@ -179,7 +179,7 @@ export default function EmployeeManagement({ employees, positions, onRefresh, cu
                     }}
                   >
                     {/* 1. รายชื่อ */}
-                    <td style={{ padding: '16px 20px', fontWeight: 600, color: '#2D3436' }}>
+                    <td style={{ padding: '16px 20px', minWidth: 250, fontWeight: 600, color: '#2D3436' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{
                           width: 36,
