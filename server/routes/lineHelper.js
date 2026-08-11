@@ -111,7 +111,65 @@ function handleLineCommand(text, lineUserId, baseUrl, data) {
     };
   }
 
-  // 4. Default / Contact HR
+  // 4. Candidate Interview Confirmation / Postpone / Cancel commands
+  if (/ยืนยัน|ตกลง|เข้าร่วม|รับนัด|พร้อม/i.test(trimmed)) {
+    const applicant = (data.applicants || []).find(a => a.lineUserId === lineUserId);
+    const interview = applicant ? (data.interviews || []).find(i => (i.applicantId === applicant.id || i.id === applicant.interviewId) && i.confirmationStatus === 'Pending_Confirmation') : null;
+
+    if (interview) {
+      interview.confirmationStatus = 'Confirmed';
+      if (applicant) applicant.status = 'Confirmed';
+      return {
+        text: `✅ ขอบคุณสำหรับการยืนยันค่ะคุณ ${applicant ? applicant.name : ''}! ระบบได้บันทึกการเข้าร่วมสัมภาษณ์ของคุณเรียบร้อยแล้ว เจอกันวันที่ ${interview.interviewDate} เวลา ${interview.timeSlot} นะคะ ✨`,
+        actionLink: null
+      };
+    } else {
+      return {
+        text: `ขอบคุณค่ะ 😊 ไม่พบรายการนัดสัมภาษณ์ที่รอการยืนยันในขณะนี้ค่ะ คุณสามารถพิมพ์คำว่า "สถานะ" เพื่อเช็กข้อมูลนัดหมายล่าสุดได้เลยนะคะ`,
+        actionLink: null
+      };
+    }
+  }
+
+  if (/ขอเลื่อน|เลื่อนวัน|เลื่อนนัด|เลื่อน/i.test(trimmed)) {
+    const applicant = (data.applicants || []).find(a => a.lineUserId === lineUserId);
+    const interview = applicant ? (data.interviews || []).find(i => (i.applicantId === applicant.id || i.id === applicant.interviewId) && i.confirmationStatus === 'Pending_Confirmation') : null;
+
+    if (interview) {
+      interview.confirmationStatus = 'Postponed';
+      if (applicant) applicant.status = 'Rescheduled';
+      return {
+        text: `🗓️ ได้รับคำขอเลื่อนวันสัมภาษณ์ของคุณเรียบร้อยแล้วค่ะ เจ้าหน้าที่ HR จะติดต่อกลับทาง LINE อีกครั้งเพื่อจัดสรรวันนัดหมายใหม่ให้นะคะ 🙏🏻`,
+        actionLink: null
+      };
+    } else {
+      return {
+        text: `ขอบคุณค่ะ 😊 หากต้องการเลื่อนนัดหมาย สามารถพิมพ์ข้อความระบุวันที่สะดวกทิ้งไว้ได้เลยค่ะ เจ้าหน้าที่ HR จะรีบตรวจสอบให้นะคะ`,
+        actionLink: null
+      };
+    }
+  }
+
+  if (/ยกเลิก|ไม่สะดวก|สละสิทธิ์/i.test(trimmed)) {
+    const applicant = (data.applicants || []).find(a => a.lineUserId === lineUserId);
+    const interview = applicant ? (data.interviews || []).find(i => (i.applicantId === applicant.id || i.id === applicant.interviewId) && i.confirmationStatus === 'Pending_Confirmation') : null;
+
+    if (interview) {
+      interview.confirmationStatus = 'Cancelled_User';
+      if (applicant) applicant.status = 'Cancelled';
+      return {
+        text: `❌ ระบบทำการยกเลิกนัดหมายสัมภาษณ์ของคุณเรียบร้อยแล้วค่ะ ขอบคุณที่ให้ความสนใจสมัครงานกับเรานะคะ 🙏🏻`,
+        actionLink: null
+      };
+    } else {
+      return {
+        text: `รับทราบค่ะ หากมีข้อสงสัยเพิ่มเติม สามารถพิมพ์ข้อความทิ้งไว้ให้ HR ได้เลยนะคะ 😊`,
+        actionLink: null
+      };
+    }
+  }
+
+  // 5. Default / Contact HR
   return {
     text: getFallbackMessage(applicationUrl),
     actionLink: applicationUrl
