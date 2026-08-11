@@ -1,5 +1,6 @@
 const { readData, writeData } = require('./db');
 const { logAudit } = require('./auditLogger');
+const { sendLinePushMessage } = require('./lineService');
 
 async function checkInterviewReminders() {
   const data = await readData();
@@ -19,16 +20,21 @@ async function checkInterviewReminders() {
       interview.reminderDeadline = deadline.toISOString();
       updated = true;
 
+      const reminderText = `[การแจ้งเตือนสิทธิ์สัมภาษณ์ 1 วันก่อนถึงกำหนด]\nคุณมีนัดสัมภาษณ์ตำแหน่ง ${interview.position} วันที่ ${interview.interviewDate} เวลา ${interview.timeSlot}\n\nกรุณากดยืนยัน เลื่อน หรือยกเลิก ภายใน 12 ชั่วโมง (หมดเขต: ${deadline.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.) หากไม่ตอบรับถือว่าสละสิทธิ์`;
+
       // Add push message to simulated LINE chat
       data.lineMessages.push({
         id: `msg-${Date.now()}-${Math.floor(Math.random()*100)}`,
         lineUserId: interview.lineUserId,
         sender: 'system',
-        text: `[การแจ้งเตือนสิทธิ์สัมภาษณ์ 1 วันก่อนถึงกำหนด]\nคุณมีนัดสัมภาษณ์ตำแหน่ง ${interview.position} วันที่ ${interview.interviewDate} เวลา ${interview.timeSlot}\n\nกรุณากดยืนยัน เลื่อน หรือยกเลิก ภายใน 12 ชั่วโมง (หมดเขต: ${deadline.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.) หากไม่ตอบรับถือว่าสละสิทธิ์`,
+        text: reminderText,
         timestamp: now.toISOString(),
         requiresConfirmation: true,
         interviewId: interview.id
       });
+
+      // Push to real LINE application
+      await sendLinePushMessage(interview.lineUserId, reminderText);
 
       await logAudit({
         user: 'system_cron',
@@ -51,14 +57,19 @@ async function checkInterviewReminders() {
           applicant.status = 'Cancelled';
         }
 
+        const cancelText = `⚠️ [ยกเลิกการนัดหมายอัตโนมัติ]\nเนื่องจากไม่มีการตอบรับการนัดสัมภาษณ์ตำแหน่ง ${interview.position} ภายใน 12 ชั่วโมงที่กำหนด ระบบได้ทำการยกเลิกนัดหมายเรียบร้อยแล้ว`;
+
         // Add auto-cancel message in LINE chat
         data.lineMessages.push({
           id: `msg-cancel-${Date.now()}`,
           lineUserId: interview.lineUserId,
           sender: 'system',
-          text: `⚠️ [ยกเลิกการนัดหมายอัตโนมัติ]\nเนื่องจากไม่มีการตอบรับการนัดสัมภาษณ์ตำแหน่ง ${interview.position} ภายใน 12 ชั่วโมงที่กำหนด ระบบได้ทำการยกเลิกนัดหมายเรียบร้อยแล้ว`,
+          text: cancelText,
           timestamp: now.toISOString()
         });
+
+        // Push to real LINE application
+        await sendLinePushMessage(interview.lineUserId, cancelText);
 
         await logAudit({
           user: 'system_cron',

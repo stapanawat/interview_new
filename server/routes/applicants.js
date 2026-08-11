@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { readData, writeData } = require('../db');
 const { logAudit } = require('../auditLogger');
+const { sendLinePushMessage } = require('../lineService');
 
 // GET all applicants
 router.get('/', async (req, res) => {
@@ -45,16 +46,21 @@ router.post('/submit', async (req, res) => {
 
   data.applicants.unshift(newApplicant);
 
+  const confirmText = `ระบบได้รับแบบฟอร์มใบสมัครงานของคุณแล้ว!\nตำแหน่ง: ${position}\nผู้สมัคร: ${name}\nเจ้าหน้าที่จะทำการตรวจสอบข้อมูลและแจ้งกำหนดการนัดสัมภาษณ์ผ่าน LINE ในขั้นตอนถัดไปค่ะ`;
+
   // Push notification back into LINE simulator
   data.lineMessages.push({
     id: `msg-${Date.now()}`,
     lineUserId: newApplicant.lineUserId,
     sender: 'system',
-    text: `ระบบได้รับแบบฟอร์มใบสมัครงานของคุณแล้ว!\nตำแหน่ง: ${position}\nผู้สมัคร: ${name}\nเจ้าหน้าที่จะทำการตรวจสอบข้อมูลและแจ้งกำหนดการนัดสัมภาษณ์ผ่าน LINE ในขั้นตอนถัดไปค่ะ`,
+    text: confirmText,
     timestamp: now
   });
 
   await writeData(data);
+
+  // Push notification to real LINE application
+  await sendLinePushMessage(newApplicant.lineUserId, confirmText);
 
   await logAudit({
     user: 'applicant_public',
@@ -108,6 +114,26 @@ router.patch('/:id/status', async (req, res) => {
       };
       data.employees.unshift(createdEmployee);
     }
+
+    const passMsg = `🎉 ยินดีด้วยค่ะคุณ ${applicant.name}! คุณผ่านการคัดเลือกเข้าทำงานตำแหน่ง ${applicant.position} เรียบร้อยแล้วค่ะ ทีมงาน HR จะติดต่อแจ้งรายละเอียดการเริ่มงานในลำดับถัดไปนะคะ`;
+    data.lineMessages.push({
+      id: `msg-${Date.now()}`,
+      lineUserId: applicant.lineUserId,
+      sender: 'system',
+      text: passMsg,
+      timestamp: new Date().toISOString()
+    });
+    await sendLinePushMessage(applicant.lineUserId, passMsg);
+  } else if (status === 'Failed' && oldStatus !== 'Failed') {
+    const failMsg = `ขอขอบคุณคุณ ${applicant.name} ที่ให้ความสนใจสมัครงานตำแหน่ง ${applicant.position} กับเราค่ะ ทางบริษัทขอเก็บบันทึกประวัติของคุณไว้พิจารณาในโอกาสถัดไปนะคะ`;
+    data.lineMessages.push({
+      id: `msg-${Date.now()}`,
+      lineUserId: applicant.lineUserId,
+      sender: 'system',
+      text: failMsg,
+      timestamp: new Date().toISOString()
+    });
+    await sendLinePushMessage(applicant.lineUserId, failMsg);
   }
 
   await writeData(data);

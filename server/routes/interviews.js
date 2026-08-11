@@ -3,6 +3,7 @@ const router = express.Router();
 const { readData, writeData } = require('../db');
 const { logAudit } = require('../auditLogger');
 const { checkInterviewReminders } = require('../reminderEngine');
+const { sendLinePushMessage } = require('../lineService');
 
 // GET all interviews
 router.get('/', async (req, res) => {
@@ -50,18 +51,23 @@ router.post('/schedule', async (req, res) => {
   applicant.interviewId = interviewId;
   data.interviews.unshift(newInterview);
 
+  const notificationText = `[การนัดหมายสัมภาษณ์งาน 📅]\nเรียนคุณ ${applicant.name}\n\nตำแหน่งงาน: ${applicant.position}\nวันที่สัมภาษณ์: ${interviewDate}\nเวลา: ${timeSlot}\nรูปแบบ: ${newInterview.format}\nสถานที่/ลิงก์: ${newInterview.locationOrLink}\n\n⚠️ กรุณากดยืนยันการเข้าร่วมสัมภาษณ์ในแชต LINE ภายใน 12 ชั่วโมงนะคะ`;
+
   // Send message to LINE simulator
   data.lineMessages.push({
     id: `msg-${Date.now()}`,
     lineUserId: applicant.lineUserId,
     sender: 'system',
-    text: `[การนัดหมายสัมภาษณ์งาน]\nตำแหน่ง: ${applicant.position}\nวันที่: ${interviewDate}\nเวลา: ${timeSlot}\nรูปแบบ: ${newInterview.format}\nรายละเอียด: ${newInterview.locationOrLink}\n\nกรุณายืนยันเข้าร่วมภายใน 12 ชั่วโมง หากไม่ยืนยันระบบจะยกเลิกการนัดหมายโดยอัตโนมัติ`,
+    text: notificationText,
     timestamp: now.toISOString(),
     requiresConfirmation: true,
     interviewId: newInterview.id
   });
 
   await writeData(data);
+
+  // Push real LINE message to user's LINE application
+  await sendLinePushMessage(applicant.lineUserId, notificationText);
 
   await logAudit({
     user: adminUser || 'admin',
@@ -94,6 +100,8 @@ router.post('/respond', async (req, res) => {
     interview.confirmationStatus = 'Confirmed';
     if (applicant) applicant.status = 'Confirmed';
 
+    const confirmMsg = `ขอบคุณสำหรับการยืนยันค่ะ ระบบได้บันทึกการเข้าร่วมสัมภาษณ์ของคุณแล้ว เจอกันวันที่ ${interview.interviewDate} เวลา ${interview.timeSlot} นะคะ`;
+
     data.lineMessages.push({
       id: `msg-${Date.now()}`,
       lineUserId: interview.lineUserId,
@@ -105,9 +113,11 @@ router.post('/respond', async (req, res) => {
       id: `msg-reply-${Date.now()}`,
       lineUserId: interview.lineUserId,
       sender: 'system',
-      text: `ขอบคุณสำหรับการยืนยันค่ะ ระบบได้บันทึกการเข้าร่วมสัมภาษณ์ของคุณแล้ว เจอกันวันที่ ${interview.interviewDate} เวลา ${interview.timeSlot} นะคะ`,
+      text: confirmMsg,
       timestamp: now
     });
+
+    await sendLinePushMessage(interview.lineUserId, confirmMsg);
 
     await logAudit({
       user: 'candidate_line',
@@ -121,6 +131,8 @@ router.post('/respond', async (req, res) => {
     interview.confirmationStatus = 'Postponed';
     if (applicant) applicant.status = 'Rescheduled';
 
+    const postponeMsg = `ได้รับคำขอเลื่อนวันสัมภาษณ์เรียบร้อยแล้วค่ะ เจ้าหน้าที่ HR จะติดต่อกลับทาง LINE อีกครั้งเพื่อจัดสรรวันนัดหมายใหม่นะคะ`;
+
     data.lineMessages.push({
       id: `msg-${Date.now()}`,
       lineUserId: interview.lineUserId,
@@ -132,9 +144,11 @@ router.post('/respond', async (req, res) => {
       id: `msg-reply-${Date.now()}`,
       lineUserId: interview.lineUserId,
       sender: 'system',
-      text: `ได้รับคำขอเลื่อนวันสัมภาษณ์เรียบร้อยแล้วค่ะ เจ้าหน้าที่ HR จะติดต่อกลับทาง LINE อีกครั้งเพื่อจัดสรรวันนัดหมายใหม่นะคะ`,
+      text: postponeMsg,
       timestamp: now
     });
+
+    await sendLinePushMessage(interview.lineUserId, postponeMsg);
 
     await logAudit({
       user: 'candidate_line',
@@ -148,6 +162,8 @@ router.post('/respond', async (req, res) => {
     interview.confirmationStatus = 'Cancelled_User';
     if (applicant) applicant.status = 'Cancelled';
 
+    const cancelMsg = `ระบบทำการยกเลิกนัดหมายสัมภาษณ์ของคุณเรียบร้อยแล้ว ขอบคุณที่ให้ความสนใจกับบริษัทของเราค่ะ`;
+
     data.lineMessages.push({
       id: `msg-${Date.now()}`,
       lineUserId: interview.lineUserId,
@@ -159,9 +175,11 @@ router.post('/respond', async (req, res) => {
       id: `msg-reply-${Date.now()}`,
       lineUserId: interview.lineUserId,
       sender: 'system',
-      text: `ระบบทำการยกเลิกนัดหมายสัมภาษณ์ของคุณเรียบร้อยแล้ว ขอบคุณที่ให้ความสนใจกับบริษัทของเราค่ะ`,
+      text: cancelMsg,
       timestamp: now
     });
+
+    await sendLinePushMessage(interview.lineUserId, cancelMsg);
 
     await logAudit({
       user: 'candidate_line',
