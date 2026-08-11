@@ -235,9 +235,18 @@ function supabaseConfig() {
   return url && key ? { url: url.replace(/\/$/, ''), key } : null;
 }
 
+function requirePersistentStorageInProduction() {
+  if (process.env.VERCEL === '1' && !supabaseConfig()) {
+    throw new Error('Persistent storage is not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Vercel.');
+  }
+}
+
 async function readData() {
   const config = supabaseConfig();
-  if (!config) return readLocalData();
+  if (!config) {
+    requirePersistentStorageInProduction();
+    return readLocalData();
+  }
 
   const response = await fetch(`${config.url}/rest/v1/app_state?id=eq.1&select=data`, {
     headers: {
@@ -253,6 +262,7 @@ async function readData() {
 async function writeData(data) {
   const config = supabaseConfig();
   if (!config) {
+    requirePersistentStorageInProduction();
     writeLocalData(data);
     return;
   }
