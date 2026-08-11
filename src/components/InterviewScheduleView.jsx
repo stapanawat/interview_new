@@ -4,6 +4,22 @@ import { showConfirmAlert, showSuccessAlert, showErrorAlert } from '../utils/swa
 
 export default function InterviewScheduleView({ interviews, onRefresh, onScheduleNew }) {
   const [simulating, setSimulating] = useState(false);
+  const [resendingId, setResendingId] = useState(null);
+
+  const handleResend = async (interviewId) => {
+    setResendingId(interviewId);
+    try {
+      const res = await fetch(`/api/interviews/${interviewId}/resend`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Unable to resend the LINE message');
+      showSuccessAlert('ส่ง LINE สำเร็จ', data.message);
+      onRefresh();
+    } catch (err) {
+      showErrorAlert('ส่ง LINE ไม่สำเร็จ', err.message);
+    } finally {
+      setResendingId(null);
+    }
+  };
 
   const handleSimulateTimeout = async (interviewId) => {
     const isConfirmed = await showConfirmAlert('ทดสอบระบบหมดเวลา', 'ต้องการทดสอบจำลองให้สิทธิ์ตอบรับ 12 ชั่วโมงหมดเวลาใช่หรือไม่? (ระบบจะยกเลิกนัดอัตโนมัติ)');
@@ -110,7 +126,15 @@ export default function InterviewScheduleView({ interviews, onRefresh, onSchedul
 
               {/* Simulation Action Bar */}
               {isPending12h && (
-                <div style={{ borderTop: '1px dashed #E2E8F0', paddingTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
+                <div style={{ borderTop: '1px dashed #E2E8F0', paddingTop: 12, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                  <button
+                    onClick={() => handleResend(interview.id)}
+                    className="btn-pastel btn-pastel-primary"
+                    disabled={resendingId === interview.id}
+                    style={{ fontSize: '0.8rem', padding: '6px 12px' }}
+                  >
+                    <Send size={14} /> {resendingId === interview.id ? 'กำลังส่ง...' : 'ส่ง LINE ซ้ำ'}
+                  </button>
                   <button
                     onClick={() => handleSimulateTimeout(interview.id)}
                     className="btn-pastel btn-pastel-danger"

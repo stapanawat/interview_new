@@ -8,14 +8,14 @@ async function sendLinePushMessage(toLineUserId, text, options = {}) {
 
   if (!accessToken) {
     console.log(`[LINE Push Skipped] LINE_CHANNEL_ACCESS_TOKEN is not set.`);
-    return false;
+    return { ok: false, error: 'LINE_CHANNEL_ACCESS_TOKEN is not configured' };
   }
 
   // Real LINE User IDs start with 'U' and are usually 33 characters long.
   // Skip non-real/simulated test IDs (e.g., 'LINE-123456')
   if (!toLineUserId || !toLineUserId.startsWith('U')) {
     console.log(`[LINE Push Skipped] lineUserId "${toLineUserId}" is not a real LINE User ID.`);
-    return false;
+    return { ok: false, error: 'Invalid LINE User ID' };
   }
 
   const messageObj = {
@@ -75,14 +75,14 @@ async function sendLinePushMessage(toLineUserId, text, options = {}) {
     if (!response.ok) {
       const errText = await response.text();
       console.error(`[LINE Push Error] Status ${response.status}: ${errText}`);
-      return false;
+      return { ok: false, status: response.status, error: errText || `LINE API returned ${response.status}` };
     }
 
     console.log(`[LINE Push Success] Message pushed successfully to ${toLineUserId}`);
-    return true;
+    return { ok: true, status: response.status };
   } catch (error) {
     console.error(`[LINE Push Exception]`, error);
-    return false;
+    return { ok: false, error: error.message || 'Unable to reach LINE Messaging API' };
   }
 }
 

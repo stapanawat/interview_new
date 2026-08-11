@@ -5,6 +5,10 @@ const { logAudit } = require('../auditLogger');
 const { checkInterviewReminders } = require('../reminderEngine');
 const { sendLinePushMessage } = require('../lineService');
 
+function getInterviewNotificationText(interview) {
+  return `[การนัดหมายสัมภาษณ์งาน 📅]\nเรียนคุณ ${interview.applicantName}\n\nตำแหน่งงาน: ${interview.position}\nวันที่สัมภาษณ์: ${interview.interviewDate}\nเวลา: ${interview.timeSlot}\nรูปแบบ: ${interview.format}\nสถานที่/ลิงก์: ${interview.locationOrLink}\n\n⚠️ กรุณากดยืนยันการเข้าร่วมสัมภาษณ์ในแชต LINE ภายใน 12 ชั่วโมงนะคะ`;
+}
+
 // GET all interviews
 router.get('/', async (req, res) => {
   const data = await readData();
@@ -47,8 +51,18 @@ router.post('/schedule', async (req, res) => {
     createdBy: adminUser || 'admin'
   };
 
+  const deliveryText = getInterviewNotificationText(newInterview);
+  const delivery = await sendLinePushMessage(applicant.lineUserId, deliveryText, { requiresConfirmation: true });
+  if (!delivery.ok) {
+    return res.status(502).json({
+      error: 'LINE did not accept the interview message. The 12-hour confirmation window was not started.',
+      lineDelivery: { status: delivery.status || null, error: delivery.error }
+    });
+  }
+
   applicant.status = 'Pending_Confirmation';
   applicant.interviewId = interviewId;
+  newInterview.lineDelivery = { status: 'sent', sentAt: now.toISOString(), httpStatus: delivery.status };
   data.interviews.unshift(newInterview);
 
   const notificationText = `[การนัดหมายสัมภาษณ์งาน 📅]\nเรียนคุณ ${applicant.name}\n\nตำแหน่งงาน: ${applicant.position}\nวันที่สัมภาษณ์: ${interviewDate}\nเวลา: ${timeSlot}\nรูปแบบ: ${newInterview.format}\nสถานที่/ลิงก์: ${newInterview.locationOrLink}\n\n⚠️ กรุณากดยืนยันการเข้าร่วมสัมภาษณ์ในแชต LINE ภายใน 12 ชั่วโมงนะคะ`;
@@ -67,7 +81,6 @@ router.post('/schedule', async (req, res) => {
   await writeData(data);
 
   // Push real LINE message with interactive action buttons to user's LINE application
-  await sendLinePushMessage(applicant.lineUserId, notificationText, { requiresConfirmation: true });
 
   await logAudit({
     user: adminUser || 'admin',
@@ -81,6 +94,31 @@ router.post('/schedule', async (req, res) => {
     message: 'สร้างนัดหมายสัมภาษณ์และส่งข้อความแจ้งเตือนทาง LINE เรียบร้อยแล้ว',
     interview: newInterview
   });
+});
+
+// Resend a pending appointment and restart its 12-hour window only after LINE accepts it.
+router.post('/:interviewId/resend', async (req, res) => {
+  const data = await readData();
+  const interview = data.interviews.find((item) => item.id === req.params.interviewId);
+  if (!interview) return res.status(404).json({ error: 'Interview not found' });
+  if (interview.confirmationStatus !== 'Pending_Confirmation') {
+    return res.status(409).json({ error: 'Only pending interviews can be resent' });
+  }
+
+  const delivery = await sendLinePushMessage(interview.lineUserId, getInterviewNotificationText(interview), { requiresConfirmation: true });
+  if (!delivery.ok) {
+    interview.lineDelivery = { status: 'failed', attemptedAt: new Date().toISOString(), httpStatus: delivery.status || null, error: delivery.error };
+    await writeData(data);
+    return res.status(502).json({ error: 'LINE did not accept the interview message', lineDelivery: interview.lineDelivery });
+  }
+
+  const now = new Date();
+  interview.reminderSentAt = now.toISOString();
+  interview.reminderDeadline = new Date(now.getTime() + 12 * 60 * 60 * 1000).toISOString();
+  interview.lineDelivery = { status: 'sent', sentAt: now.toISOString(), httpStatus: delivery.status };
+  data.lineMessages.push({ id: `msg-${Date.now()}`, lineUserId: interview.lineUserId, sender: 'system', text: getInterviewNotificationText(interview), timestamp: now.toISOString(), requiresConfirmation: true, interviewId: interview.id });
+  await writeData(data);
+  res.json({ message: 'LINE accepted the interview message; the 12-hour confirmation window has restarted.', interview });
 });
 
 // POST Candidate response from LINE simulator (Confirm, Postpone, Cancel)
