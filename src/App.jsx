@@ -9,7 +9,7 @@ import EmployeeManagement from './components/EmployeeManagement';
 import AuditLogView from './components/AuditLogView';
 import PositionManagement from './components/PositionManagement';
 
-import { Users, Calendar, UserCheck, ShieldCheck, Plus, Sparkles, Clock, CheckCircle2, HeartHandshake, Lock, KeyRound } from 'lucide-react';
+import { Users, Calendar, UserCheck, ShieldCheck, Plus, Sparkles, Clock, CheckCircle2, HeartHandshake, Lock, KeyRound, XCircle } from 'lucide-react';
 
 function AdminApp() {
   const [activeTab, setActiveTab] = useState('applicants');
@@ -396,20 +396,20 @@ function AdminApp() {
 }
 
 function PublicApplicationPage({ lineUserId }) {
-  const [closed, setClosed] = useState(false);
+  const [pageState, setPageState] = useState('form'); // 'form' | 'success' | 'cancelled'
 
-  if (closed) {
+  if (pageState === 'success') {
     return (
       <div style={{
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)',
+        background: 'linear-gradient(135deg, #FFF0F5 0%, #E6FFFA 100%)',
         padding: 20,
-        fontFamily: 'Inter, prompt, sans-serif'
+        fontFamily: 'Prompt, sans-serif'
       }}>
-        <div className="pastel-card" style={{ maxWidth: 480, width: '100%', textAlign: 'center', padding: '40px 24px' }}>
+        <div className="pastel-card" style={{ maxWidth: 480, width: '100%', textAlign: 'center', padding: '36px 24px' }}>
           <div style={{
             width: 64,
             height: 64,
@@ -424,11 +424,55 @@ function PublicApplicationPage({ lineUserId }) {
             <CheckCircle2 size={36} />
           </div>
           <h2 style={{ fontSize: '1.4rem', color: '#2D3436', fontWeight: 600, marginBottom: 8 }}>
-            ยื่นใบสมัครเรียบร้อยแล้ว
+            ยื่นใบสมัครเรียบร้อยแล้ว!
           </h2>
           <p style={{ color: '#636E72', fontSize: '0.9rem', lineHeight: 1.6, margin: 0 }}>
+            ระบบได้บันทึกข้อมูลใบสมัครของคุณเรียบร้อยแล้ว <br />
             ขอบคุณสำหรับความสนใจร่วมงานกับเรา คุณสามารถปิดหน้าต่างนี้เพื่อกลับไปยัง LINE ได้เลยค่ะ
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (pageState === 'cancelled') {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #F8F9FA 0%, #EDF2F7 100%)',
+        padding: 20,
+        fontFamily: 'Prompt, sans-serif'
+      }}>
+        <div className="pastel-card" style={{ maxWidth: 480, width: '100%', textAlign: 'center', padding: '36px 24px' }}>
+          <div style={{
+            width: 64,
+            height: 64,
+            borderRadius: '50%',
+            background: '#EDF2F7',
+            color: '#718096',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 16
+          }}>
+            <XCircle size={36} />
+          </div>
+          <h2 style={{ fontSize: '1.4rem', color: '#2D3436', fontWeight: 600, marginBottom: 8 }}>
+            ยกเลิกการกรอกใบสมัครแล้ว
+          </h2>
+          <p style={{ color: '#636E72', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: 20 }}>
+            คุณได้ปิดแบบฟอร์มสมัครงานแล้ว หากต้องการสมัครใหม่ สามารถกลับไปยัง LINE หรือกดปุ่มด้านล่างได้ค่ะ
+          </p>
+          <button
+            onClick={() => setPageState('form')}
+            className="btn-pastel btn-pastel-primary"
+            style={{ padding: '8px 20px', fontSize: '0.9rem' }}
+          >
+            เปิดแบบฟอร์มสมัครงานอีกครั้ง
+          </button>
         </div>
       </div>
     );
@@ -438,12 +482,12 @@ function PublicApplicationPage({ lineUserId }) {
     <div style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)',
-      padding: 20
+      padding: 0
     }}>
       <JobApplicationForm
         lineUserId={lineUserId}
-        onClose={() => setClosed(true)}
-        onSuccess={() => setClosed(true)}
+        onClose={() => setPageState('cancelled')}
+        onSuccess={() => setPageState('success')}
       />
     </div>
   );

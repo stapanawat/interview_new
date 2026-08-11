@@ -63,8 +63,8 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose} style={{ padding: 12 }}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 640, padding: '18px 22px', maxHeight: '96vh' }}>
+    <div className="modal-overlay job-modal-overlay" onClick={onClose}>
+      <div className="modal-content job-modal-content" onClick={(e) => e.stopPropagation()}>
         {submitted ? (
           <div style={{ textAlign: 'center', padding: '24px 10px' }}>
             <div style={{
@@ -124,7 +124,7 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
                 <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#7A52C7', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
                   <User size={14} /> ข้อมูลส่วนตัวและการติดต่อ
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 12px' }}>
+                <div className="job-form-grid">
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <label style={{ fontSize: '0.78rem', fontWeight: 500, color: '#2D3436' }}><User size={12} style={{ display: 'inline', marginRight: 3 }} /> ชื่อ - นามสกุล *</label>
                     <input
@@ -188,7 +188,7 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
                 <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#7A52C7', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
                   <Briefcase size={14} /> ข้อมูลการทำงานและความพร้อม
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 12px' }}>
+                <div className="job-form-grid">
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <label style={{ fontSize: '0.78rem', fontWeight: 500, color: '#2D3436' }}><Briefcase size={12} style={{ display: 'inline', marginRight: 3 }} /> ตำแหน่งงานที่สนใจ *</label>
                     <select
