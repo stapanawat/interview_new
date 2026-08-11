@@ -18,13 +18,13 @@ async function sendLinePushMessage(toLineUserId, text, options = {}) {
     return { ok: false, error: 'Invalid LINE User ID' };
   }
 
-  const messageObj = {
+  const messageObj = options.flexMessage || {
     type: 'text',
     text
   };
 
   // Add interactive Quick Reply buttons if confirmation is requested
-  if (options.requiresConfirmation) {
+  if (!options.flexMessage && options.requiresConfirmation) {
     messageObj.quickReply = {
       items: [
         {

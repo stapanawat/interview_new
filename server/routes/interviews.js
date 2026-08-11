@@ -9,6 +9,39 @@ function getInterviewNotificationText(interview) {
   return `[การนัดหมายสัมภาษณ์งาน 📅]\nเรียนคุณ ${interview.applicantName}\n\nตำแหน่งงาน: ${interview.position}\nวันที่สัมภาษณ์: ${interview.interviewDate}\nเวลา: ${interview.timeSlot}\nรูปแบบ: ${interview.format}\nสถานที่/ลิงก์: ${interview.locationOrLink}\n\n⚠️ กรุณากดยืนยันการเข้าร่วมสัมภาษณ์ในแชต LINE ภายใน 12 ชั่วโมงนะคะ`;
 }
 
+function getInterviewFlexMessage(interview) {
+  return {
+    type: 'flex',
+    altText: `นัดหมายสัมภาษณ์: ${interview.interviewDate} เวลา ${interview.timeSlot}`,
+    contents: {
+      type: 'bubble', size: 'mega',
+      header: { type: 'box', layout: 'vertical', backgroundColor: '#FFF7ED', paddingAll: '20px', contents: [{ type: 'text', text: 'นัดหมายสัมภาษณ์', weight: 'bold', size: 'xl', color: '#7C2D12' }] },
+      body: {
+        type: 'box', layout: 'vertical', spacing: 'md', paddingAll: '20px',
+        contents: [
+          { type: 'text', text: `เรียนคุณ ${interview.applicantName}`, size: 'md', weight: 'bold', wrap: true },
+          { type: 'separator' },
+          { type: 'box', layout: 'vertical', spacing: 'sm', contents: [
+            { type: 'text', text: `ตำแหน่ง: ${interview.position}`, wrap: true },
+            { type: 'text', text: `📅 วันที่: ${interview.interviewDate}`, wrap: true },
+            { type: 'text', text: `⏰ เวลา: ${interview.timeSlot}`, wrap: true },
+            { type: 'text', text: `📍 สถานที่: ${interview.locationOrLink}`, wrap: true }
+          ] },
+          { type: 'text', text: 'กรุณาเลือกคำตอบภายใน 12 ชั่วโมง', size: 'xs', color: '#9CA3AF', wrap: true }
+        ]
+      },
+      footer: {
+        type: 'box', layout: 'horizontal', spacing: 'sm', paddingAll: '16px',
+        contents: [
+          { type: 'button', style: 'primary', color: '#22C55E', action: { type: 'message', label: 'ยืนยัน', text: 'ยืนยัน' } },
+          { type: 'button', style: 'primary', color: '#EF4444', action: { type: 'message', label: 'ขอเลื่อน', text: 'ขอเลื่อน' } },
+          { type: 'button', style: 'secondary', action: { type: 'message', label: 'ยกเลิก', text: 'ยกเลิก' } }
+        ]
+      }
+    }
+  };
+}
+
 // GET all interviews
 router.get('/', async (req, res) => {
   const data = await readData();
@@ -52,7 +85,7 @@ router.post('/schedule', async (req, res) => {
   };
 
   const deliveryText = getInterviewNotificationText(newInterview);
-  const delivery = await sendLinePushMessage(applicant.lineUserId, deliveryText, { requiresConfirmation: true });
+  const delivery = await sendLinePushMessage(applicant.lineUserId, deliveryText, { flexMessage: getInterviewFlexMessage(newInterview) });
   if (!delivery.ok) {
     return res.status(502).json({
       error: 'LINE did not accept the interview message. The 12-hour confirmation window was not started.',
@@ -105,7 +138,7 @@ router.post('/:interviewId/resend', async (req, res) => {
     return res.status(409).json({ error: 'Only pending interviews can be resent' });
   }
 
-  const delivery = await sendLinePushMessage(interview.lineUserId, getInterviewNotificationText(interview), { requiresConfirmation: true });
+  const delivery = await sendLinePushMessage(interview.lineUserId, getInterviewNotificationText(interview), { flexMessage: getInterviewFlexMessage(interview) });
   if (!delivery.ok) {
     interview.lineDelivery = { status: 'failed', attemptedAt: new Date().toISOString(), httpStatus: delivery.status || null, error: delivery.error };
     await writeData(data);
