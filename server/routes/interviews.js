@@ -45,7 +45,13 @@ function getInterviewFlexMessage(interview) {
 // GET all interviews
 router.get('/', async (req, res) => {
   const data = await readData();
-  res.json(data.interviews);
+  // Once an applicant has passed and been moved to employee management, their
+  // interview is no longer an active item for the interview schedule.
+  const activeInterviews = data.interviews.filter((interview) => {
+    const applicant = data.applicants.find((item) => item.id === interview.applicantId);
+    return applicant?.status !== 'Passed';
+  });
+  res.json(activeInterviews);
 });
 
 // POST schedule a new interview
