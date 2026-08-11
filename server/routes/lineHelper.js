@@ -1,5 +1,14 @@
+const LIFF_ID = process.env.VITE_LIFF_ID || '';
+
+function getApplicationUrl(lineUserId, baseUrl) {
+  if (LIFF_ID) {
+    return `https://liff.line.me/${LIFF_ID}`;
+  }
+  return `${baseUrl}/apply?lineUserId=${encodeURIComponent(lineUserId)}`;
+}
+
 function getWelcomeMessage(lineUserId, baseUrl) {
-  const applicationUrl = `${baseUrl}/apply?lineUserId=${encodeURIComponent(lineUserId)}`;
+  const applicationUrl = getApplicationUrl(lineUserId, baseUrl);
   return `สวัสดีค่ะ! 😊 ยินดีต้อนรับเข้าสู่ระบบรับสมัครงานออนไลน์ค่ะ 🌸✨
 
 เรายินดีอย่างยิ่งที่ได้พบคุณนะคะ คุณสามารถเลือกใช้งานบริการต่างๆ ผ่านเมนูด้านล่างนี้ได้เลยค่ะ:
@@ -83,7 +92,7 @@ function getFallbackMessage(applicationUrl) {
 
 function handleLineCommand(text, lineUserId, baseUrl, data) {
   const trimmed = (text || '').trim();
-  const applicationUrl = `${baseUrl}/apply?lineUserId=${encodeURIComponent(lineUserId)}`;
+  const applicationUrl = getApplicationUrl(lineUserId, baseUrl);
 
   // 1. Follow / Welcome / Hello / Apply / Help
   if (/สมัครงาน|สวัสดี|สนใจ|เริ่มต้น|เริ่ม|สวัสดีครับ|สวัสดีค่ะ|เมนู|ช่วยเหลือ|help|start/i.test(trimmed)) {
