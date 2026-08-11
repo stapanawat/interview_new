@@ -4,6 +4,7 @@ import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { toHumanError } from '../utils/errorHelper';
+import { showSuccessAlert, showErrorAlert } from '../utils/swal';
 
 export default function ApplicantList({ applicants, onRefresh, onScheduleInterview, onOpenEmployeeTab, currentUser }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -131,12 +132,15 @@ export default function ApplicantList({ applicants, onRefresh, onScheduleIntervi
       if (!res.ok) throw new Error(data.error || 'ไม่สามารถเปลี่ยนสถานะได้');
 
       if (data.employeeAdded) {
-        alert(`อัปเดตสถานะเป็น "ผ่านการสัมภาษณ์" เรียบร้อย!\nระบบได้บันทึกคุณ ${data.employeeAdded.name} ไปยัง "หน้าจัดการพนักงาน" (เงินเดือน: ฿${data.employeeAdded.monthlySalary.toLocaleString()})`);
+        showSuccessAlert(
+          'อัปเดตสถานะเป็น "ผ่านการสัมภาษณ์" เรียบร้อย!',
+          `ระบบได้บันทึกคุณ ${data.employeeAdded.name} ไปยัง "หน้าจัดการพนักงาน" (เงินเดือน: ฿${data.employeeAdded.monthlySalary.toLocaleString()})`
+        );
       }
 
       onRefresh();
     } catch (err) {
-      alert('เกิดข้อผิดพลาด: ' + toHumanError(err, 'ไม่สามารถเปลี่ยนสถานะผู้สมัครได้'));
+      showErrorAlert('เกิดข้อผิดพลาด', toHumanError(err, 'ไม่สามารถเปลี่ยนสถานะผู้สมัครได้'));
     } finally {
       setUpdatingId(null);
     }

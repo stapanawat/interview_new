@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Briefcase, Edit, Plus, Trash2 } from 'lucide-react';
+import { Briefcase, Edit, Plus, Trash2, Edit2, CheckCircle2, RefreshCw } from 'lucide-react';
 import { toHumanError } from '../utils/errorHelper';
+import { showConfirmAlert, showErrorAlert } from '../utils/swal';
 
 const blankPosition = { name: '', department: '', status: 'Open' };
 
@@ -20,17 +21,18 @@ export default function PositionManagement({ positions, onRefresh, currentUser }
       const data = response.status === 204 ? null : await response.json();
       if (!response.ok) throw new Error(data?.error || 'ไม่สามารถบันทึกตำแหน่งงานได้');
       reset(); onRefresh();
-    } catch (error) { alert('เกิดข้อผิดพลาด: ' + toHumanError(error, 'ไม่สามารถบันทึกตำแหน่งงานได้')); } finally { setSaving(false); }
+    } catch (error) { showErrorAlert('เกิดข้อผิดพลาด', toHumanError(error, 'ไม่สามารถบันทึกตำแหน่งงานได้')); } finally { setSaving(false); }
   };
 
   const remove = async (item) => {
-    if (!confirm(`ลบตำแหน่ง “${item.name}” ใช่หรือไม่?`)) return;
+    const isConfirmed = await showConfirmAlert('ยืนยันการลบตำแหน่งงาน', `ลบตำแหน่ง “${item.name}” ใช่หรือไม่?`);
+    if (!isConfirmed) return;
     setSaving(true);
     try {
       const response = await fetch(`/api/positions/${item.id}?adminUser=${encodeURIComponent(currentUser?.username || 'admin')}`, { method: 'DELETE' });
       if (!response.ok) { const data = await response.json(); throw new Error(data.error || 'ไม่สามารถลบตำแหน่งงานได้'); }
       onRefresh();
-    } catch (error) { alert('เกิดข้อผิดพลาด: ' + toHumanError(error, 'ไม่สามารถลบตำแหน่งงานได้')); } finally { setSaving(false); }
+    } catch (error) { showErrorAlert('เกิดข้อผิดพลาด', toHumanError(error, 'ไม่สามารถลบตำแหน่งงานได้')); } finally { setSaving(false); }
   };
 
   return <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, .8fr) minmax(400px, 1.2fr)', gap: 20, alignItems: 'start' }}>

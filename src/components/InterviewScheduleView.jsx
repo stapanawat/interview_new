@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Calendar, Clock, CheckCircle2, AlertTriangle, RefreshCw, XCircle, Send, Play, Bell, MapPin, MessageCircle, Mail } from 'lucide-react';
+import { showConfirmAlert, showSuccessAlert, showErrorAlert } from '../utils/swal';
 
 export default function InterviewScheduleView({ interviews, onRefresh, onScheduleNew }) {
   const [simulating, setSimulating] = useState(false);
 
   const handleSimulateTimeout = async (interviewId) => {
-    if (!confirm('ต้องการทดสอบจำลองให้สิทธิ์ตอบรับ 12 ชั่วโมงหมดเวลาใช่หรือไม่? (ระบบจะยกเลิกนัดอัตโนมัติ)')) {
+    const isConfirmed = await showConfirmAlert('ทดสอบระบบหมดเวลา', 'ต้องการทดสอบจำลองให้สิทธิ์ตอบรับ 12 ชั่วโมงหมดเวลาใช่หรือไม่? (ระบบจะยกเลิกนัดอัตโนมัติ)');
+    if (!isConfirmed) {
       return;
     }
     setSimulating(true);
@@ -16,10 +18,10 @@ export default function InterviewScheduleView({ interviews, onRefresh, onSchedul
         body: JSON.stringify({ interviewId })
       });
       const data = await res.json();
-      alert(data.message);
+      showSuccessAlert('ทดสอบระบบสำเร็จ', data.message);
       onRefresh();
     } catch (err) {
-      alert('เกิดข้อผิดพลาด: ' + err.message);
+      showErrorAlert('เกิดข้อผิดพลาด', err.message);
     } finally {
       setSimulating(false);
     }

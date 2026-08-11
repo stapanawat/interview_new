@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Send, Sparkles, CheckCircle2, User, Mail, Phone, Briefcase, DollarSign, Award, FileText, Calendar, Car } from 'lucide-react';
 import { toHumanError } from '../utils/errorHelper';
+import { showErrorAlert } from '../utils/swal';
 
 export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
   const [name, setName] = useState('');
@@ -56,7 +57,7 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
         if (onSuccess) onSuccess(data.applicant);
       }, 1400);
     } catch (err) {
-      alert('เกิดข้อผิดพลาด: ' + toHumanError(err, 'ไม่สามารถส่งใบสมัครงานได้'));
+      showErrorAlert('เกิดข้อผิดพลาด', toHumanError(err, 'ไม่สามารถส่งใบสมัครงานได้'));
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { UserCheck, Plus, Edit, Trash2, Search, DollarSign, Mail, Phone, FileText, CheckCircle2, User } from 'lucide-react';
+import { UserCheck, Plus, Search, Filter, Mail, Phone, Calendar, DollarSign, Award, FileText, CheckCircle2, AlertCircle, Edit, Trash2, Sparkles, Building2, User, ChevronRight, X, HeartHandshake, Eye } from 'lucide-react';
 import { toHumanError } from '../utils/errorHelper';
+import { showConfirmAlert, showErrorAlert } from '../utils/swal';
 
 export default function EmployeeManagement({ employees, positions, onRefresh, currentUser }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -86,14 +87,15 @@ export default function EmployeeManagement({ employees, positions, onRefresh, cu
       setIsModalOpen(false);
       onRefresh();
     } catch (err) {
-      alert('เกิดข้อผิดพลาด: ' + toHumanError(err, 'ไม่สามารถบันทึกข้อมูลพนักงานได้'));
+      showErrorAlert('เกิดข้อผิดพลาด', toHumanError(err, 'ไม่สามารถบันทึกข้อมูลพนักงานได้'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (empId, empName) => {
-    if (!confirm(`คุณต้องการลบข้อมูลพนักงาน "${empName}" ออกจากระบบใช่หรือไม่?`)) {
+    const isConfirmed = await showConfirmAlert('ยืนยันการลบข้อมูลพนักงาน', `คุณต้องการลบข้อมูลพนักงาน "${empName}" ออกจากระบบใช่หรือไม่?`);
+    if (!isConfirmed) {
       return;
     }
 
@@ -106,7 +108,7 @@ export default function EmployeeManagement({ employees, positions, onRefresh, cu
 
       onRefresh();
     } catch (err) {
-      alert('เกิดข้อผิดพลาด: ' + toHumanError(err, 'ไม่สามารถลบข้อมูลพนักงานได้'));
+      showErrorAlert('เกิดข้อผิดพลาด', toHumanError(err, 'ไม่สามารถลบข้อมูลพนักงานได้'));
     }
   };
 

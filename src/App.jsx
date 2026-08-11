@@ -8,6 +8,7 @@ import InterviewScheduleView from './components/InterviewScheduleView';
 import EmployeeManagement from './components/EmployeeManagement';
 import AuditLogView from './components/AuditLogView';
 import PositionManagement from './components/PositionManagement';
+import { showSuccessAlert, showErrorAlert } from './utils/swal';
 
 import { Users, Calendar, UserCheck, ShieldCheck, Plus, Sparkles, Clock, CheckCircle2, HeartHandshake, Lock, KeyRound, XCircle } from 'lucide-react';
 
@@ -111,12 +112,15 @@ function AdminApp() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'ไม่สามารถนัดสัมภาษณ์ได้');
 
-      alert(`ส่งข้อความนัดสัมภาษณ์ไปยัง LINE ของคุณ ${targetApplicant.name} เรียบร้อยแล้ว!\n(ระบบเริ่มนับถอยหลังยืนยัน 12 ชม.)`);
+      showSuccessAlert(
+        'ส่งนัดสัมภาษณ์สำเร็จ!',
+        `ส่งข้อความนัดสัมภาษณ์ไปยัง LINE ของคุณ ${targetApplicant.name} เรียบร้อยแล้ว (ระบบเริ่มนับถอยหลังยืนยัน 12 ชม.)`
+      );
       setIsScheduleModalOpen(false);
       loadAllData();
       setActiveTab('interviews');
     } catch (err) {
-      alert('เกิดข้อผิดพลาด: ' + err.message);
+      showErrorAlert('เกิดข้อผิดพลาด', err.message);
     } finally {
       setScheduling(false);
     }
@@ -243,7 +247,7 @@ function AdminApp() {
                 onRefresh={loadAllData}
                 onScheduleNew={() => {
                   if (applicants.length > 0) handleOpenScheduleModal(applicants[0]);
-                  else alert('ยังไม่มีรายการผู้สมัครในระบบ');
+                  else showErrorAlert('ไม่พบผู้สมัคร', 'ยังไม่มีรายการผู้สมัครในระบบ');
                 }}
               />
             )}

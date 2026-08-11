@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Clock, Check, RefreshCw, XCircle, FileText, Smartphone, Plus, User, MessageCircle } from 'lucide-react';
+import { showPromptAlert, showErrorAlert } from '../utils/swal';
 
 export default function LineSimulator({ lineUserId, setLineUserId, onOpenForm }) {
   const [messages, setMessages] = useState([]);
@@ -73,8 +74,9 @@ export default function LineSimulator({ lineUserId, setLineUserId, onOpenForm })
   const handleRespondInterview = async (interviewId, action) => {
     let reason = '';
     if (action === 'POSTPONE') {
-      reason = prompt('กรุณาระบุเหตุผลในการขอเลื่อนนัดสัมภาษณ์ (ถ้ามี):', 'ติดภารกิจ');
-      if (reason === null) return;
+      const inputVal = await showPromptAlert('ขอเลื่อนนัดสัมภาษณ์', 'กรุณาระบุเหตุผลในการขอเลื่อนนัดสัมภาษณ์ (ถ้ามี):', 'เช่น ติดภารกิจ', 'ติดภารกิจ');
+      if (inputVal === null) return;
+      reason = inputVal;
     }
 
     try {
@@ -85,7 +87,7 @@ export default function LineSimulator({ lineUserId, setLineUserId, onOpenForm })
       });
       fetchMessages();
     } catch (err) {
-      alert('เกิดข้อผิดพลาดในการตอบรับสัมภาษณ์: ' + err.message);
+      showErrorAlert('เกิดข้อผิดพลาดในการตอบรับสัมภาษณ์', err.message);
     }
   };
 
