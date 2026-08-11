@@ -13,13 +13,14 @@ import { Users, Calendar, UserCheck, ShieldCheck, Plus, Sparkles, Clock, CheckCi
 
 function AdminApp() {
   const [activeTab, setActiveTab] = useState('applicants');
-  const [currentUser, setCurrentUser] = useState(null); /*
-    id: 'usr-1',
-    username: 'admin',
-    name: 'สมชาย ใจดี (HR Manager)',
-    role: 'Super Admin',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'
-  }); */
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('interview_current_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -129,6 +130,7 @@ function AdminApp() {
         body: JSON.stringify({ username: currentUser.username, userName: currentUser.name })
       });
     }
+    try { localStorage.removeItem('interview_current_user'); } catch (e) { console.error(e); }
     setCurrentUser(null);
     loadAllData();
   };
@@ -282,6 +284,8 @@ function AdminApp() {
         }}
         onLoginSuccess={(user) => {
           setCurrentUser(user);
+          try { localStorage.setItem('interview_current_user', JSON.stringify(user)); } catch (e) { console.error(e); }
+          setIsLoginOpen(false);
           loadAllData();
         }}
       />

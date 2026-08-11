@@ -39,18 +39,17 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
       }
 
       if (mode === 'register') {
-        setSuccessMsg(`สมัครสมาชิกสำเร็จ! กำลังเข้าสู่ระบบในฐานะ ${data.user.name}...`);
-        // Auto login after register
+        setSuccessMsg(`สมัครสมาชิกสำเร็จ! เข้าสู่ระบบในฐานะ ${data.user.name} เรียบร้อยแล้ว`);
         setTimeout(() => {
           onLoginSuccess(data.user);
-          onClose();
-        }, 1000);
+          if (onClose) onClose();
+        }, 600);
       } else {
         setSuccessMsg(`เข้าสู่ระบบสำเร็จ (${data.user.name})`);
         setTimeout(() => {
           onLoginSuccess(data.user);
-          onClose();
-        }, 800);
+          if (onClose) onClose();
+        }, 500);
       }
     } catch (err) {
       setError(toHumanError(err, 'ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง'));
