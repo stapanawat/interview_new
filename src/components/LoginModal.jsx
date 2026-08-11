@@ -122,8 +122,12 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
           <h2 style={{ fontSize: '1.4rem', color: '#2D3436', fontWeight: 600 }}>
             {mode === 'login' ? 'เข้าสู่ระบบบัญชีผู้ใช้' : 'ลงทะเบียนบัญชีใหม่'}
           </h2>
-          <p style={{ fontSize: '0.85rem', color: '#636E72', marginTop: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-            <Lock size={16} /> บันทึกประวัติกิจกรรมและการสลับบัญชี (Audit Log) ในระบบย้อนหลัง
+          <p style={{ fontSize: '0.85rem', color: '#636E72', marginTop: 6, lineHeight: 1.5, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: 6, textAlign: 'center' }}>
+            <Lock size={16} style={{ marginTop: 3, flexShrink: 0, color: '#70A1FF' }} />
+            <span>
+              บันทึกประวัติกิจกรรมและการสลับบัญชี <br />
+              (Audit Log) ในระบบย้อนหลัง
+            </span>
           </p>
         </div>
 
