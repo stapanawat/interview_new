@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const express = require('express');
 const { readData, writeData } = require('../db');
+const { getWelcomeMessage, handleLineCommand } = require('./lineHelper');
 
 const router = express.Router();
 
@@ -45,32 +46,60 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 
     const payload = JSON.parse(rawBody.toString('utf8'));
     const events = Array.isArray(payload.events) ? payload.events : [];
+    const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
 
     for (const event of events) {
-      if (event.type !== 'message' || event.message?.type !== 'text') continue;
-
       const lineUserId = event.source?.userId;
-      const text = event.message.text || '';
       if (!lineUserId) continue;
 
-      const data = await readData();
-      data.lineMessages.push({
-        id: `line-in-${event.webhookEventId || Date.now()}`,
-        lineUserId,
-        sender: 'user',
-        text,
-        timestamp: new Date(event.timestamp || Date.now()).toISOString()
-      });
-      await writeData(data);
+      // 1. Handle "follow" event (User adds LINE OA as friend or unblocks)
+      if (event.type === 'follow') {
+        const welcomeText = getWelcomeMessage(lineUserId, baseUrl);
+        const data = await readData();
+        data.lineMessages.push({
+          id: `line-follow-${Date.now()}`,
+          lineUserId,
+          sender: 'system',
+          text: welcomeText,
+          timestamp: new Date().toISOString()
+        });
+        await writeData(data);
 
-      const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
-      const applicationUrl = `${baseUrl}/apply?lineUserId=${encodeURIComponent(lineUserId)}`;
-      const isApplicationRequest = /สมัครงาน|สวัสดี|สนใจ/i.test(text);
-      const responseText = isApplicationRequest
-        ? `ยินดีต้อนรับสู่ระบบรับสมัครงาน กรุณากรอกใบสมัครที่ ${applicationUrl}`
-        : 'ได้รับข้อความแล้ว เจ้าหน้าที่จะติดต่อกลับโดยเร็วที่สุด';
+        if (event.replyToken) {
+          await reply(event.replyToken, welcomeText);
+        }
+        continue;
+      }
 
-      await reply(event.replyToken, responseText);
+      // 2. Handle "message" event (Text message from user)
+      if (event.type === 'message' && event.message?.type === 'text') {
+        const text = event.message.text || '';
+        const data = await readData();
+
+        data.lineMessages.push({
+          id: `line-in-${event.webhookEventId || Date.now()}`,
+          lineUserId,
+          sender: 'user',
+          text,
+          timestamp: new Date(event.timestamp || Date.now()).toISOString()
+        });
+
+        const { text: responseText } = handleLineCommand(text, lineUserId, baseUrl, data);
+
+        data.lineMessages.push({
+          id: `line-out-${Date.now()}`,
+          lineUserId,
+          sender: 'system',
+          text: responseText,
+          timestamp: new Date().toISOString()
+        });
+
+        await writeData(data);
+
+        if (event.replyToken) {
+          await reply(event.replyToken, responseText);
+        }
+      }
     }
 
     // LINE expects a 2xx response, including for its Verify request with events: [].

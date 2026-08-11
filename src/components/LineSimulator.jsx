@@ -228,16 +228,28 @@ export default function LineSimulator({ lineUserId, setLineUserId, onOpenForm })
         {/* LINE Chat Quick Preset Actions */}
         <div style={{ background: '#F8F9FA', padding: '8px 12px', borderTop: '1px solid #EAEAEA', display: 'flex', gap: 6, overflowX: 'auto' }}>
           <button
-            onClick={() => handleSend('สวัสดีครับ สนใจสมัครงานครับ')}
+            onClick={() => handleSend('สวัสดีครับ')}
             style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: 16, background: '#E8F5E9', border: '1px solid #A5D6A7', color: '#1B5E20', cursor: 'pointer', whiteSpace: 'nowrap' }}
           >
-            <MessageCircle size={14} /> สนใจสมัครงาน
+            🌸 สวัสดี / เมนูหลัก
           </button>
           <button
-            onClick={() => onOpenForm(lineUserId)}
+            onClick={() => handleSend('สมัครงาน')}
+            style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: 16, background: '#FFF3E0', border: '1px solid #FFE0B2', color: '#E65100', cursor: 'pointer', whiteSpace: 'nowrap' }}
+          >
+            📝 สมัครงาน
+          </button>
+          <button
+            onClick={() => handleSend('เช็กสถานะ')}
+            style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: 16, background: '#F3E8FF', border: '1px solid #D8B4FE', color: '#7E22CE', cursor: 'pointer', whiteSpace: 'nowrap' }}
+          >
+            🔍 เช็กสถานะ
+          </button>
+          <button
+            onClick={() => handleSend('ดูตำแหน่งงาน')}
             style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: 16, background: '#E3F2FD', border: '1px solid #90CAF9', color: '#0D47A1', cursor: 'pointer', whiteSpace: 'nowrap' }}
           >
-            <FileText size={14} /> กรอกใบสมัครงาน
+            💼 ดูตำแหน่งงาน
           </button>
         </div>
 

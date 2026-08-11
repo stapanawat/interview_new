@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { readData, writeData } = require('../db');
+const { handleLineCommand } = require('./lineHelper');
 
 router.get('/messages', async (req, res, next) => {
   try {
@@ -18,18 +19,18 @@ router.post('/send-message', async (req, res, next) => {
     const userId = lineUserId || 'U1002948182';
     data.lineMessages.push({ id: `msg-${Date.now()}`, lineUserId: userId, sender: 'user', text, timestamp: now });
 
-    if (/สมัครงาน|สวัสดี|สนใจ/.test(text)) {
-      const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
-      const formUrl = `${baseUrl}/apply?lineUserId=${encodeURIComponent(userId)}`;
-      data.lineMessages.push({
-        id: `msg-bot-${Date.now()}`,
-        lineUserId: userId,
-        sender: 'system',
-        text: `ยินดีต้อนรับสู่ระบบรับสมัครงาน กรุณากรอกใบสมัคร: ${formUrl}`,
-        timestamp: new Date().toISOString(),
-        actionLink: formUrl
-      });
-    }
+    const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
+    const { text: botResponseText, actionLink } = handleLineCommand(text, userId, baseUrl, data);
+
+    data.lineMessages.push({
+      id: `msg-bot-${Date.now()}`,
+      lineUserId: userId,
+      sender: 'system',
+      text: botResponseText,
+      timestamp: new Date().toISOString(),
+      actionLink: actionLink || null
+    });
+
     await writeData(data);
     res.json({ message: 'ส่งข้อความสำเร็จ', data: data.lineMessages.filter((m) => m.lineUserId === userId) });
   } catch (error) { next(error); }
