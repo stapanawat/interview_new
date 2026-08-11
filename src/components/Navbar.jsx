@@ -8,12 +8,14 @@ import {
   LogIn,
   LogOut,
   HeartHandshake,
+  Briefcase,
 } from 'lucide-react';
 
 const navigationItems = [
   { id: 'applicants', label: 'รายการผู้สมัครงาน', icon: Users },
   { id: 'interviews', label: 'ตารางนัดสัมภาษณ์', icon: Calendar },
   { id: 'employees', label: 'จัดการพนักงาน', icon: UserCheck },
+  { id: 'positions', label: 'จัดการตำแหน่งงาน', icon: Briefcase },
   { id: 'audit-logs', label: 'ประวัติการใช้งาน', icon: ShieldCheck },
   { id: 'line-sim', label: 'จำลอง LINE Chat', icon: MessageSquare, accent: true },
 ];

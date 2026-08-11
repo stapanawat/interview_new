@@ -10,6 +10,7 @@ const employeesRoutes = require('./routes/employees');
 const auditLogsRoutes = require('./routes/auditLogs');
 const lineSimulatorRoutes = require('./routes/lineSimulator');
 const lineWebhookRoutes = require('./routes/lineWebhook');
+const positionsRoutes = require('./routes/positions');
 
 const app = express();
 const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5000')
@@ -24,6 +25,7 @@ app.use('/api/applicants', applicantsRoutes);
 app.use('/api/interviews', interviewsRoutes);
 app.use('/api/employees', employeesRoutes);
 app.use('/api/audit-logs', auditLogsRoutes);
+app.use('/api/positions', positionsRoutes);
 app.use('/api/line', lineSimulatorRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));

@@ -1,23 +1,32 @@
-import React, { useState } from 'react';
-import { Send, Sparkles, CheckCircle2, User, Mail, Phone, Briefcase, DollarSign, Award, FileText } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Send, Sparkles, CheckCircle2, User, Mail, Phone, Briefcase, DollarSign, Award, FileText, Calendar, Car } from 'lucide-react';
 
 export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [position, setPosition] = useState('');
-  const [customPosition, setCustomPosition] = useState('');
+  const [positions, setPositions] = useState([]);
   const [expectedSalary, setExpectedSalary] = useState('');
+  const [age, setAge] = useState('');
+  const [vehicle, setVehicle] = useState('ไม่มี');
   const [experience, setExperience] = useState('');
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  useEffect(() => {
+    fetch('/api/positions')
+      .then((res) => res.ok ? res.json() : [])
+      .then((items) => setPositions(items.filter((item) => item.status === 'Open')))
+      .catch(() => setPositions([]));
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    const finalPosition = position === 'OTHER' ? customPosition : (position || 'พนักงานทั่วไป');
+    const finalPosition = position;
 
     try {
       const res = await fetch('/api/applicants/submit', {
@@ -29,6 +38,8 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
           phone,
           position: finalPosition,
           expectedSalary: Number(expectedSalary) || 0,
+          age: age ? Number(age) : null,
+          vehicle: vehicle || 'ไม่มี',
           lineUserId: lineUserId || `LINE-${Math.floor(100000 + Math.random() * 900000)}`,
           lineDisplayName: name,
           experience,
@@ -143,29 +154,11 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
                     required
                   >
                     <option value="">-- เลือกตำแหน่งงาน --</option>
-                    <option value="Senior Frontend Developer">Senior Frontend Developer</option>
-                    <option value="Fullstack Developer">Fullstack Developer</option>
-                    <option value="UX/UI Designer">UX/UI Designer</option>
-                    <option value="Backend Tech Lead">Backend Tech Lead</option>
-                    <option value="HR & Admin Specialist">HR & Admin Specialist</option>
-                    <option value="OTHER">ระบุตำแหน่งงานอื่น...</option>
+                    {positions.map((item) => <option key={item.id} value={item.name}>{item.name}{item.department ? ` — ${item.department}` : ''}</option>)}
                   </select>
+                  {positions.length === 0 && <small style={{ color: '#D35400' }}>ยังไม่มีตำแหน่งที่เปิดรับสมัคร กรุณาติดต่อ HR</small>}
                 </div>
               </div>
-
-              {position === 'OTHER' && (
-                <div className="form-group">
-                  <label>ระบุตำแหน่งงานอื่นๆ *</label>
-                  <input
-                    type="text"
-                    className="input-pastel"
-                    value={customPosition}
-                    onChange={(e) => setCustomPosition(e.target.value)}
-                    placeholder="เช่น Marketing Manager, Graphic Designer..."
-                    required
-                  />
-                </div>
-              )}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                 <div className="form-group">
@@ -189,6 +182,36 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
                     onChange={(e) => setExperience(e.target.value)}
                     placeholder="ระบุประสบการณ์ทำงานโดยย่อ..."
                   />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div className="form-group">
+                  <label><Calendar size={14} style={{ display: 'inline', marginRight: 4 }} /> อายุ (ปี)</label>
+                  <input
+                    type="number"
+                    min="15"
+                    max="99"
+                    className="input-pastel"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                    placeholder="เช่น 25"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label><Car size={14} style={{ display: 'inline', marginRight: 4 }} /> ยานพาหนะ</label>
+                  <select
+                    className="input-pastel"
+                    value={vehicle}
+                    onChange={(e) => setVehicle(e.target.value)}
+                  >
+                    <option value="ไม่มี">ไม่มี (None)</option>
+                    <option value="รถจักรยานยนต์">รถจักรยานยนต์ (Motorcycle)</option>
+                    <option value="รถยนต์">รถยนต์ (Car)</option>
+                    <option value="รถจักรยานยนต์ และ รถยนต์">รถจักรยานยนต์ และ รถยนต์</option>
+                    <option value="อื่นๆ">อื่นๆ</option>
+                  </select>
                 </div>
               </div>
 

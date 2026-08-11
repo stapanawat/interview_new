@@ -13,17 +13,20 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   const { name, email, phone, position, monthlySalary, notes, hiredDate, adminUser, adminName } = req.body;
 
-  if (!name || !phone || !monthlySalary) {
+  if (!name || !phone || !monthlySalary || !position) {
     return res.status(400).json({ error: 'กรุณากรอกข้อมูล รายชื่อ, เบอร์โทรศัพท์ และอัตราเงินเดือน (รายเดือน)' });
   }
 
   const data = await readData();
+  if (!data.positions.some((item) => item.name === position && item.status === 'Open')) {
+    return res.status(400).json({ error: 'กรุณาเลือกตำแหน่งงานที่เปิดใช้งาน' });
+  }
   const newEmp = {
     id: `emp-${Date.now()}`,
     name,
     email: email || '',
     phone,
-    position: position || 'พนักงานทั่วไป',
+    position,
     monthlySalary: Number(monthlySalary) || 0,
     hiredDate: hiredDate || new Date().toISOString().split('T')[0],
     notes: notes || '',
@@ -57,6 +60,10 @@ router.put('/:id', async (req, res) => {
   const emp = data.employees.find(e => e.id === id);
   if (!emp) {
     return res.status(404).json({ error: 'ไม่พบข้อมูลพนักงาน' });
+  }
+
+  if (position && position !== emp.position && !data.positions.some((item) => item.name === position && item.status === 'Open')) {
+    return res.status(400).json({ error: 'กรุณาเลือกตำแหน่งงานที่เปิดใช้งาน' });
   }
 
   const changes = [];

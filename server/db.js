@@ -189,11 +189,22 @@ const exampleData = {
 const defaultData = {
   users: [],
   auditLogs: [],
+  positions: [
+    { id: 'pos-frontend', name: 'Senior Frontend Developer', department: 'Technology', status: 'Open' },
+    { id: 'pos-fullstack', name: 'Fullstack Developer', department: 'Technology', status: 'Open' },
+    { id: 'pos-designer', name: 'UX/UI Designer', department: 'Design', status: 'Open' },
+    { id: 'pos-backend-lead', name: 'Backend Tech Lead', department: 'Technology', status: 'Open' },
+    { id: 'pos-hr-admin', name: 'HR & Admin Specialist', department: 'Human Resources', status: 'Open' }
+  ],
   applicants: [],
   interviews: [],
   employees: [],
   lineMessages: []
 };
+
+function normalizeData(data) {
+  return { ...defaultData, ...data, positions: Array.isArray(data?.positions) ? data.positions : defaultData.positions };
+}
 
 function readLocalData() {
   if (!fs.existsSync(DB_FILE)) {
@@ -202,7 +213,7 @@ function readLocalData() {
   }
   try {
     const raw = fs.readFileSync(DB_FILE, 'utf8');
-    return JSON.parse(raw);
+    return normalizeData(JSON.parse(raw));
   } catch (err) {
     console.error('Error reading db.json, returning defaultData:', err);
     return defaultData;
@@ -235,7 +246,7 @@ async function readData() {
   });
   if (!response.ok) throw new Error(`Supabase read failed: ${response.status}`);
   const rows = await response.json();
-  return rows[0]?.data || defaultData;
+  return normalizeData(rows[0]?.data || defaultData);
 }
 
 async function writeData(data) {

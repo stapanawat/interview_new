@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, CheckCircle, Clock, Search, Filter, Plus, MessageCircle, AlertCircle, ArrowRight, Mail, Phone, Wallet, Briefcase, FileText, Download, FileSpreadsheet } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, Search, Filter, Plus, MessageCircle, AlertCircle, ArrowRight, Mail, Phone, Wallet, Briefcase, FileText, Download, FileSpreadsheet, Car } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -23,6 +23,8 @@ export default function ApplicantList({ applicants, onRefresh, onScheduleIntervi
     'ลำดับ': index + 1,
     'ชื่อผู้สมัคร': applicant.name,
     'ตำแหน่ง': applicant.position,
+    'อายุ': applicant.age ? `${applicant.age} ปี` : '-',
+    'ยานพาหนะ': applicant.vehicle || 'ไม่มี',
     'อีเมล': applicant.email || '-',
     'เบอร์โทร': applicant.phone || '-',
     'LINE ID': applicant.lineUserId || '-',
@@ -35,8 +37,9 @@ export default function ApplicantList({ applicants, onRefresh, onScheduleIntervi
   const downloadExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(getExportRows());
     worksheet['!cols'] = [
-      { wch: 8 }, { wch: 26 }, { wch: 24 }, { wch: 30 }, { wch: 18 },
-      { wch: 20 }, { wch: 22 }, { wch: 20 }, { wch: 38 }, { wch: 32 },
+      { wch: 8 }, { wch: 26 }, { wch: 24 }, { wch: 10 }, { wch: 20 },
+      { wch: 30 }, { wch: 18 }, { wch: 20 }, { wch: 22 }, { wch: 20 },
+      { wch: 38 }, { wch: 32 },
     ];
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'ผู้สมัครงาน');
@@ -63,12 +66,15 @@ export default function ApplicantList({ applicants, onRefresh, onScheduleIntervi
       <table style="width:100%;border-collapse:collapse;font-size:12px;">
         <thead><tr style="background:#f3e8ff;">
           <th style="padding:9px;border:1px solid #ddd;">ชื่อผู้สมัคร</th><th style="padding:9px;border:1px solid #ddd;">ตำแหน่ง</th>
+          <th style="padding:9px;border:1px solid #ddd;">อายุ</th><th style="padding:9px;border:1px solid #ddd;">ยานพาหนะ</th>
           <th style="padding:9px;border:1px solid #ddd;">อีเมล</th><th style="padding:9px;border:1px solid #ddd;">เบอร์โทร</th>
           <th style="padding:9px;border:1px solid #ddd;">LINE ID</th><th style="padding:9px;border:1px solid #ddd;">สถานะ</th>
         </tr></thead>
         <tbody>${rows.map((row) => `<tr>
           <td style="padding:8px;border:1px solid #e5e7eb;">${escapeHtml(row['ชื่อผู้สมัคร'])}</td>
           <td style="padding:8px;border:1px solid #e5e7eb;">${escapeHtml(row['ตำแหน่ง'])}</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">${escapeHtml(row['อายุ'])}</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">${escapeHtml(row['ยานพาหนะ'])}</td>
           <td style="padding:8px;border:1px solid #e5e7eb;">${escapeHtml(row['อีเมล'])}</td>
           <td style="padding:8px;border:1px solid #e5e7eb;">${escapeHtml(row['เบอร์โทร'])}</td>
           <td style="padding:8px;border:1px solid #e5e7eb;">${escapeHtml(row['LINE ID'])}</td>
@@ -232,6 +238,8 @@ export default function ApplicantList({ applicants, onRefresh, onScheduleIntervi
               </div>
 
               <div style={{ background: '#F8F9FA', borderRadius: 12, padding: 12, fontSize: '0.85rem', color: '#636E72', display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}><Calendar size={15} /><span><b>อายุ:</b> {applicant.age ? `${applicant.age} ปี` : 'ไม่ได้ระบุ'}</span></div>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}><Car size={15} /><span><b>ยานพาหนะ:</b> {applicant.vehicle || 'ไม่มี'}</span></div>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}><Mail size={15} /><span><b>อีเมล:</b> {applicant.email || 'ไม่ได้ระบุ'}</span></div>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}><Phone size={15} /><span><b>เบอร์โทร:</b> {applicant.phone}</span></div>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}><Wallet size={15} /><span><b>เงินเดือนที่คาดหวัง:</b> ฿{Number(applicant.expectedSalary).toLocaleString()} /เดือน</span></div>

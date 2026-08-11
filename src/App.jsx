@@ -7,6 +7,7 @@ import ApplicantList from './components/ApplicantList';
 import InterviewScheduleView from './components/InterviewScheduleView';
 import EmployeeManagement from './components/EmployeeManagement';
 import AuditLogView from './components/AuditLogView';
+import PositionManagement from './components/PositionManagement';
 
 import { Users, Calendar, UserCheck, ShieldCheck, Plus, Sparkles, Clock, CheckCircle2, HeartHandshake } from 'lucide-react';
 
@@ -38,25 +39,29 @@ function AdminApp() {
   const [interviews, setInterviews] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
+  const [positions, setPositions] = useState([]);
 
   const loadAllData = async () => {
     try {
-      const [resApp, resInt, resEmp, resLog] = await Promise.all([
+      const [resApp, resInt, resEmp, resLog, resPositions] = await Promise.all([
         fetch('/api/applicants'),
         fetch('/api/interviews'),
         fetch('/api/employees'),
-        fetch('/api/audit-logs')
+        fetch('/api/audit-logs'),
+        fetch('/api/positions')
       ]);
 
       const dataApp = await resApp.json();
       const dataInt = await resInt.json();
       const dataEmp = await resEmp.json();
       const dataLog = await resLog.json();
+      const dataPositions = await resPositions.json();
 
       setApplicants(dataApp);
       setInterviews(dataInt);
       setEmployees(dataEmp);
       setAuditLogs(dataLog);
+      setPositions(dataPositions);
     } catch (err) {
       console.error('Error loading data:', err);
     }
@@ -212,9 +217,14 @@ function AdminApp() {
         {activeTab === 'employees' && (
           <EmployeeManagement
             employees={employees}
+            positions={positions}
             onRefresh={loadAllData}
             currentUser={currentUser}
           />
+        )}
+
+        {activeTab === 'positions' && (
+          <PositionManagement positions={positions} onRefresh={loadAllData} currentUser={currentUser} />
         )}
 
         {activeTab === 'audit-logs' && (

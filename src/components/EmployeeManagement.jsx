@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { UserCheck, Plus, Edit, Trash2, Search, DollarSign, Mail, Phone, FileText, CheckCircle2, User } from 'lucide-react';
 
-export default function EmployeeManagement({ employees, onRefresh, currentUser }) {
+export default function EmployeeManagement({ employees, positions, onRefresh, currentUser }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
@@ -56,7 +56,7 @@ export default function EmployeeManagement({ employees, onRefresh, currentUser }
         name,
         email,
         phone,
-        position: position || 'พนักงานทั่วไป',
+        position,
         monthlySalary: Number(monthlySalary) || 0,
         notes,
         status,
@@ -304,14 +304,15 @@ export default function EmployeeManagement({ employees, onRefresh, currentUser }
 
                 <div className="form-group">
                   <label>ตำแหน่งงาน *</label>
-                  <input
-                    type="text"
+                  <select
                     className="input-pastel"
                     value={position}
                     onChange={(e) => setPosition(e.target.value)}
-                    placeholder="กรอกตำแหน่งงาน"
                     required
-                  />
+                  >
+                    <option value="">-- เลือกตำแหน่งงาน --</option>
+                    {positions.filter((item) => item.status === 'Open' || item.name === position).map((item) => <option key={item.id} value={item.name}>{item.name}</option>)}
+                  </select>
                 </div>
               </div>
 

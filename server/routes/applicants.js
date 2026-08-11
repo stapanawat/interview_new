@@ -11,13 +11,17 @@ router.get('/', async (req, res) => {
 
 // POST submit candidate application from LINE form link
 router.post('/submit', async (req, res) => {
-  const { name, email, phone, position, expectedSalary, lineUserId, lineDisplayName, experience, notes } = req.body;
+  const { name, email, phone, position, expectedSalary, age, vehicle, lineUserId, lineDisplayName, experience, notes } = req.body;
   
   if (!name || !phone || !position) {
     return res.status(400).json({ error: 'กรุณากรอกข้อมูล ชื่อ, เบอร์โทรศัพท์ และตำแหน่งงานให้ครบถ้วน' });
   }
 
   const data = await readData();
+  const selectedPosition = data.positions.find((item) => item.name === position);
+  if (!selectedPosition || selectedPosition.status !== 'Open') {
+    return res.status(400).json({ error: 'ตำแหน่งงานนี้ไม่เปิดรับสมัครแล้ว' });
+  }
   const applicantId = `app-${Date.now()}`;
   const now = new Date().toISOString();
 
@@ -28,6 +32,8 @@ router.post('/submit', async (req, res) => {
     phone,
     position,
     expectedSalary: Number(expectedSalary) || 0,
+    age: age ? Number(age) : null,
+    vehicle: vehicle || 'ไม่มี',
     lineUserId: lineUserId || `LINE-${Math.floor(100000 + Math.random() * 900000)}`,
     lineDisplayName: lineDisplayName || name,
     appliedAt: now,
