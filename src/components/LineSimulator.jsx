@@ -1,22 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Clock, Check, RefreshCw, XCircle, FileText, Smartphone, Plus, User, MessageCircle } from 'lucide-react';
+import { Send, Clock, Check, RefreshCw, XCircle, FileText, Smartphone, User, MessageCircle } from 'lucide-react';
 import { showPromptAlert, showErrorAlert } from '../utils/swal';
 
 export default function LineSimulator({ lineUserId, setLineUserId, onOpenForm }) {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isAddingUser, setIsAddingUser] = useState(false);
-  const [newUserName, setNewUserName] = useState('');
-  const [newLineId, setNewLineId] = useState('');
-
-  const [candidateList, setCandidateList] = useState([
-    { id: 'U883719204', name: 'กมลชนก (Candidate)' },
-    { id: 'U1002948182', name: 'พิชญา (Candidate)' },
-    { id: 'U992817263', name: 'ณัฐพงษ์ (Candidate)' }
-  ]);
+  const [candidateList, setCandidateList] = useState([]);
 
   const chatEndRef = useRef(null);
+
+  const fetchKnownUsers = async () => {
+    try {
+      const res = await fetch('/api/line/users');
+      const users = await res.json();
+      setCandidateList(users);
+      if (!lineUserId && users[0]) setLineUserId(users[0].id);
+    } catch (err) {
+      console.error('Error fetching known LINE users:', err);
+    }
+  };
+
+  useEffect(() => { fetchKnownUsers(); }, []);
 
   const fetchMessages = async () => {
     try {
@@ -58,17 +63,16 @@ export default function LineSimulator({ lineUserId, setLineUserId, onOpenForm })
     }
   };
 
-  const handleAddCandidate = (e) => {
-    e.preventDefault();
-    if (!newUserName.trim()) return;
-    const generatedId = newLineId.trim() || `U${Math.floor(100000000 + Math.random() * 900000000)}`;
-    const newCand = { id: generatedId, name: `${newUserName.trim()} (LINE User)` };
-    
-    setCandidateList(prev => [newCand, ...prev]);
-    setLineUserId(generatedId);
-    setIsAddingUser(false);
-    setNewUserName('');
-    setNewLineId('');
+  const handleApplicationAccess = async () => {
+    const current = candidateList.find((candidate) => candidate.id === lineUserId);
+    if (!current) return;
+    try {
+      const res = await fetch(`/api/line/users/${encodeURIComponent(lineUserId)}/application-access`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ open: !current.applicationOpen })
+      });
+      if (!res.ok) throw new Error('Unable to change application access');
+      await fetchKnownUsers();
+    } catch (err) { showErrorAlert('เปลี่ยนสถานะใบสมัครไม่สำเร็จ', err.message); }
   };
 
   const handleRespondInterview = async (interviewId, action) => {
@@ -114,38 +118,21 @@ export default function LineSimulator({ lineUserId, setLineUserId, onOpenForm })
             >
               {candidateList.map(cand => (
                 <option key={cand.id} value={cand.id} style={{ color: '#333' }}>
-                  {cand.name}
+                  {cand.name || cand.id}
                 </option>
               ))}
             </select>
 
             <button
-              onClick={() => setIsAddingUser(!isAddingUser)}
+              onClick={handleApplicationAccess}
+              disabled={!lineUserId}
               style={{ padding: '4px 8px', borderRadius: 12, border: 'none', background: 'white', color: '#06C755', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}
-              title="เพิ่มผู้สมัคร LINE คนใหม่"
+              title="เปิดหรือปิดการรับใบสมัครของ LINE ID นี้"
             >
-              <Plus size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> เพิ่ม
+              {candidateList.find((candidate) => candidate.id === lineUserId)?.applicationOpen ? 'ปิดใบสมัคร' : 'เปิดใบสมัคร'}
             </button>
           </div>
         </div>
-
-        {/* Dynamic Add User Modal Inside LINE Frame */}
-        {isAddingUser && (
-          <form onSubmit={handleAddCandidate} style={{ background: '#E8F5E9', padding: 12, borderBottom: '1px solid #A5D6A7', display: 'flex', gap: 6 }}>
-            <input
-              type="text"
-              className="input-pastel"
-              placeholder="ชื่อผู้สมัคร LINE คนใหม่"
-              value={newUserName}
-              onChange={(e) => setNewUserName(e.target.value)}
-              style={{ padding: '6px 10px', fontSize: '0.8rem' }}
-              required
-            />
-            <button type="submit" className="btn-pastel btn-pastel-success" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
-              สร้าง
-            </button>
-          </form>
-        )}
 
         {/* LINE Messages Area */}
         <div style={{ height: 440, overflowY: 'auto', background: '#8C9EFF', padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>

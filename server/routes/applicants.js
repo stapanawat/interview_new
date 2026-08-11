@@ -7,6 +7,12 @@ const { sendLinePushMessage } = require('../lineService');
 // GET all applicants
 router.get('/', async (req, res) => {
   const data = await readData();
+  if (!lineUserId || !lineUserId.startsWith('U')) {
+    return res.status(401).json({ error: 'กรุณาเปิดใบสมัครผ่าน LINE Official Account เพื่อยืนยันตัวตน LINE' });
+  }
+  if (data.lineApplicationAccess?.[lineUserId] === false) {
+    return res.status(403).json({ error: 'LINE ID นี้ปิดการรับใบสมัครไว้ชั่วคราว กรุณาติดต่อ HR' });
+  }
   res.json(data.applicants);
 });
 
@@ -35,7 +41,7 @@ router.post('/submit', async (req, res) => {
     expectedSalary: Number(expectedSalary) || 0,
     age: age ? Number(age) : null,
     vehicle: vehicle || 'ไม่มี',
-    lineUserId: lineUserId || `LINE-${Math.floor(100000 + Math.random() * 900000)}`,
+    lineUserId,
     lineDisplayName: lineDisplayName || name,
     appliedAt: now,
     status: 'Pending',

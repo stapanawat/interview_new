@@ -197,6 +197,7 @@ const defaultData = {
     { id: 'pos-hr-admin', name: 'HR & Admin Specialist', department: 'Human Resources', status: 'Open' }
   ],
   applicants: [],
+  lineApplicationAccess: {},
   interviews: [],
   employees: [],
   lineMessages: []
