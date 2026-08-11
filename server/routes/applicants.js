@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
   const data = await readData();
   // This endpoint powers the authenticated admin dashboard. LINE access control
   // is enforced only when an applicant opens the application form.
-  return res.json(data.applicants);
+  return res.json(data.applicants.filter((applicant) => applicant.status !== 'Passed'));
   if (!lineUserId || !lineUserId.startsWith('U')) {
     return res.status(401).json({ error: 'กรุณาเปิดใบสมัครผ่าน LINE Official Account เพื่อยืนยันตัวตน LINE' });
   }
