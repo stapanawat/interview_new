@@ -66,8 +66,8 @@ router.post('/schedule', async (req, res) => {
 
   await writeData(data);
 
-  // Push real LINE message to user's LINE application
-  await sendLinePushMessage(applicant.lineUserId, notificationText);
+  // Push real LINE message with interactive action buttons to user's LINE application
+  await sendLinePushMessage(applicant.lineUserId, notificationText, { requiresConfirmation: true });
 
   await logAudit({
     user: adminUser || 'admin',

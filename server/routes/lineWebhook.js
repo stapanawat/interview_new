@@ -16,9 +16,23 @@ function isValidSignature(rawBody, signature) {
     && crypto.timingSafeEqual(expectedBuffer, signatureBuffer);
 }
 
-async function reply(replyToken, text) {
+async function reply(replyToken, text, quickReplies) {
   const accessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
   if (!accessToken || !replyToken) return;
+
+  const msgObj = { type: 'text', text };
+
+  if (quickReplies && Array.isArray(quickReplies) && quickReplies.length > 0) {
+    msgObj.quickReply = { items: quickReplies };
+  } else {
+    msgObj.quickReply = {
+      items: [
+        { type: 'action', action: { type: 'message', label: '📝 สมัครงาน', text: 'สมัครงาน' } },
+        { type: 'action', action: { type: 'message', label: '🔍 เช็กสถานะ', text: 'เช็กสถานะ' } },
+        { type: 'action', action: { type: 'message', label: '💼 ดูตำแหน่งงาน', text: 'ดูตำแหน่งงาน' } }
+      ]
+    };
+  }
 
   const response = await fetch('https://api.line.me/v2/bot/message/reply', {
     method: 'POST',
@@ -26,7 +40,7 @@ async function reply(replyToken, text) {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ replyToken, messages: [{ type: 'text', text }] })
+    body: JSON.stringify({ replyToken, messages: [msgObj] })
   });
 
   if (!response.ok) throw new Error(`LINE reply failed: ${response.status}`);

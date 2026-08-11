@@ -33,8 +33,8 @@ async function checkInterviewReminders() {
         interviewId: interview.id
       });
 
-      // Push to real LINE application
-      await sendLinePushMessage(interview.lineUserId, reminderText);
+      // Push to real LINE application with interactive action buttons
+      await sendLinePushMessage(interview.lineUserId, reminderText, { requiresConfirmation: true });
 
       await logAudit({
         user: 'system_cron',

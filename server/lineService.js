@@ -1,9 +1,9 @@
 /**
  * LINE Messaging API Service
- * Handles pushing real notifications directly into candidates' LINE apps
+ * Handles pushing real notifications with interactive Quick Reply buttons directly into candidates' LINE apps
  */
 
-async function sendLinePushMessage(toLineUserId, text) {
+async function sendLinePushMessage(toLineUserId, text, options = {}) {
   const accessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
 
   if (!accessToken) {
@@ -18,6 +18,47 @@ async function sendLinePushMessage(toLineUserId, text) {
     return false;
   }
 
+  const messageObj = {
+    type: 'text',
+    text
+  };
+
+  // Add interactive Quick Reply buttons if confirmation is requested
+  if (options.requiresConfirmation) {
+    messageObj.quickReply = {
+      items: [
+        {
+          type: 'action',
+          action: {
+            type: 'message',
+            label: '✅ ยืนยันเข้าร่วม',
+            text: 'ยืนยัน'
+          }
+        },
+        {
+          type: 'action',
+          action: {
+            type: 'message',
+            label: '🗓️ ขอเลื่อนนัดหมาย',
+            text: 'ขอเลื่อน'
+          }
+        },
+        {
+          type: 'action',
+          action: {
+            type: 'message',
+            label: '❌ ขอยกเลิกนัดหมาย',
+            text: 'ยกเลิก'
+          }
+        }
+      ]
+    };
+  } else if (options.quickReplies) {
+    messageObj.quickReply = {
+      items: options.quickReplies
+    };
+  }
+
   try {
     const response = await fetch('https://api.line.me/v2/bot/message/push', {
       method: 'POST',
@@ -27,7 +68,7 @@ async function sendLinePushMessage(toLineUserId, text) {
       },
       body: JSON.stringify({
         to: toLineUserId,
-        messages: [{ type: 'text', text }]
+        messages: [messageObj]
       })
     });
 
