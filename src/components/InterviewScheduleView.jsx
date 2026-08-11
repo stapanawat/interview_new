@@ -7,6 +7,13 @@ export default function InterviewScheduleView({ interviews, onRefresh, onSchedul
   const [resendingId, setResendingId] = useState(null);
 
   const handleResend = async (interviewId) => {
+    const interview = interviews.find((item) => item.id === interviewId);
+    const approved = await showConfirmAlert(
+      'ยืนยันการส่ง LINE ซ้ำ',
+      `ต้องการส่งนัดสัมภาษณ์ซ้ำไปยัง ${interview?.applicantName || 'ผู้สมัคร'} หรือไม่? ระบบจะเริ่มนับ 12 ชั่วโมงใหม่เมื่อ LINE ตอบรับการส่งสำเร็จ`
+    );
+    if (!approved) return;
+
     setResendingId(interviewId);
     try {
       const res = await fetch(`/api/interviews/${interviewId}/resend`, { method: 'POST' });
@@ -60,6 +67,15 @@ export default function InterviewScheduleView({ interviews, onRefresh, onSchedul
     }
   };
 
+  const interviewGroups = Object.values(interviews.reduce((groups, interview) => {
+    const lineUserId = interview.lineUserId || `missing-${interview.id}`;
+    if (!groups[lineUserId]) {
+      groups[lineUserId] = { lineUserId: interview.lineUserId || '-', interviews: [] };
+    }
+    groups[lineUserId].interviews.push(interview);
+    return groups;
+  }, {}));
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header Banner */}
@@ -80,9 +96,18 @@ export default function InterviewScheduleView({ interviews, onRefresh, onSchedul
         </button>
       </div>
 
-      {/* Interviews Table / Card Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 20 }}>
-        {interviews.map((interview) => {
+      {/* Interviews are grouped by recipient, so a LINE account is easy to review. */}
+      {interviewGroups.map((group) => (
+        <section key={group.lineUserId} className="pastel-card" style={{ padding: 16, background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F5FF 100%)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 14, padding: '0 4px' }}>
+            <div>
+              <div style={{ fontWeight: 700, color: '#4C2A85', display: 'flex', alignItems: 'center', gap: 6 }}><MessageCircle size={17} /> LINE User ID: {group.lineUserId}</div>
+              <div style={{ fontSize: '0.82rem', color: '#718096', marginTop: 3 }}>นัดหมาย {group.interviews.length} รายการสำหรับผู้รับรายเดียวกัน</div>
+            </div>
+            {group.interviews.length > 1 && <span className="badge badge-purple">จัดกลุ่มผู้รับเดียวกัน</span>}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 16 }}>
+        {group.interviews.map((interview) => {
           const isPending12h = interview.confirmationStatus === 'Pending_Confirmation';
           const deadlineText = interview.reminderDeadline ? new Date(interview.reminderDeadline).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' }) : 'ไม่ระบุ';
 
@@ -149,7 +174,9 @@ export default function InterviewScheduleView({ interviews, onRefresh, onSchedul
             </div>
           );
         })}
-      </div>
+          </div>
+        </section>
+      ))}
     </div>
   );
 }
