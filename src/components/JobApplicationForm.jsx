@@ -3,7 +3,7 @@ import { Send, Sparkles, CheckCircle2, User, Mail, Phone, Briefcase, DollarSign,
 import { toHumanError } from '../utils/errorHelper';
 import { showErrorAlert } from '../utils/swal';
 
-export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
+export default function JobApplicationForm({ lineUserId, liffProfile, onClose, onSuccess }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -24,6 +24,12 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
       .catch(() => setPositions([]));
   }, []);
 
+  useEffect(() => {
+    if (liffProfile?.lineDisplayName && !name) {
+      setName(liffProfile.lineDisplayName);
+    }
+  }, [liffProfile]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -43,7 +49,7 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
           age: age ? Number(age) : null,
           vehicle: vehicle || 'ไม่มี',
           lineUserId: lineUserId || `LINE-${Math.floor(100000 + Math.random() * 900000)}`,
-          lineDisplayName: name,
+          lineDisplayName: liffProfile?.lineDisplayName || name,
           experience,
           notes
         })

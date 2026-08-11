@@ -9,6 +9,7 @@ import EmployeeManagement from './components/EmployeeManagement';
 import AuditLogView from './components/AuditLogView';
 import PositionManagement from './components/PositionManagement';
 import { showSuccessAlert, showErrorAlert } from './utils/swal';
+import { initLiff } from './utils/liff';
 
 import { Users, Calendar, UserCheck, ShieldCheck, Plus, Sparkles, Clock, CheckCircle2, HeartHandshake, Lock, KeyRound, XCircle } from 'lucide-react';
 
@@ -401,6 +402,21 @@ function AdminApp() {
 
 function PublicApplicationPage({ lineUserId }) {
   const [pageState, setPageState] = useState('form'); // 'form' | 'success' | 'cancelled'
+  const [activeLineUserId, setActiveLineUserId] = useState(lineUserId || '');
+  const [liffProfile, setLiffProfile] = useState(null);
+
+  useEffect(() => {
+    initLiff().then((res) => {
+      if (res.lineUserId) {
+        setActiveLineUserId(res.lineUserId);
+      }
+      if (res.lineDisplayName || res.lineUserId) {
+        setLiffProfile(res);
+      }
+    }).catch((err) => {
+      console.error('[PublicApplicationPage] LIFF init error:', err);
+    });
+  }, []);
 
   if (pageState === 'success') {
     return (
@@ -489,7 +505,8 @@ function PublicApplicationPage({ lineUserId }) {
       padding: 0
     }}>
       <JobApplicationForm
-        lineUserId={lineUserId}
+        lineUserId={activeLineUserId}
+        liffProfile={liffProfile}
         onClose={() => setPageState('cancelled')}
         onSuccess={() => setPageState('success')}
       />
