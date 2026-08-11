@@ -107,123 +107,138 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                <div className="form-group">
-                  <label><User size={14} style={{ display: 'inline', marginRight: 4 }} /> ชื่อ - นามสกุล *</label>
-                  <input
-                    type="text"
-                    className="input-pastel"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="กรอกชื่อ - นามสกุล"
-                    required
-                  />
+              {/* Section 1: ข้อมูลส่วนตัวและการติดต่อ */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#7A52C7', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <User size={15} /> ข้อมูลส่วนตัวและการติดต่อ
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div className="form-group">
+                    <label><User size={14} style={{ display: 'inline', marginRight: 4 }} /> ชื่อ - นามสกุล *</label>
+                    <input
+                      type="text"
+                      className="input-pastel"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="กรอกชื่อ - นามสกุล"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label><Calendar size={14} style={{ display: 'inline', marginRight: 4 }} /> อายุ (ปี)</label>
+                    <input
+                      type="number"
+                      min="15"
+                      max="99"
+                      className="input-pastel"
+                      value={age}
+                      onChange={(e) => setAge(e.target.value)}
+                      placeholder="เช่น 25"
+                    />
+                  </div>
                 </div>
 
-                <div className="form-group">
-                  <label><Phone size={14} style={{ display: 'inline', marginRight: 4 }} /> เบอร์โทรศัพท์ *</label>
-                  <input
-                    type="tel"
-                    className="input-pastel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="กรอกเบอร์โทรศัพท์ติดต่อ"
-                    required
-                  />
-                </div>
-              </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 10 }}>
+                  <div className="form-group">
+                    <label><Phone size={14} style={{ display: 'inline', marginRight: 4 }} /> เบอร์โทรศัพท์ *</label>
+                    <input
+                      type="tel"
+                      className="input-pastel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="กรอกเบอร์โทรศัพท์ติดต่อ"
+                      required
+                    />
+                  </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                <div className="form-group">
-                  <label><Mail size={14} style={{ display: 'inline', marginRight: 4 }} /> อีเมล</label>
-                  <input
-                    type="email"
-                    className="input-pastel"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="email@example.com"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label><Briefcase size={14} style={{ display: 'inline', marginRight: 4 }} /> ตำแหน่งงานที่สนใจ *</label>
-                  <select
-                    className="input-pastel"
-                    value={position}
-                    onChange={(e) => setPosition(e.target.value)}
-                    required
-                  >
-                    <option value="">-- เลือกตำแหน่งงาน --</option>
-                    {positions.map((item) => <option key={item.id} value={item.name}>{item.name}{item.department ? ` — ${item.department}` : ''}</option>)}
-                  </select>
-                  {positions.length === 0 && <small style={{ color: '#D35400' }}>ยังไม่มีตำแหน่งที่เปิดรับสมัคร กรุณาติดต่อ HR</small>}
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                <div className="form-group">
-                  <label><DollarSign size={14} style={{ display: 'inline', marginRight: 4 }} /> เงินเดือนที่คาดหวัง (บาท/เดือน) *</label>
-                  <input
-                    type="number"
-                    className="input-pastel"
-                    value={expectedSalary}
-                    onChange={(e) => setExpectedSalary(e.target.value)}
-                    placeholder="เช่น 35000"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label><Award size={14} style={{ display: 'inline', marginRight: 4 }} /> ประวัติการทำงานสรุป</label>
-                  <input
-                    type="text"
-                    className="input-pastel"
-                    value={experience}
-                    onChange={(e) => setExperience(e.target.value)}
-                    placeholder="ระบุประสบการณ์ทำงานโดยย่อ..."
-                  />
+                  <div className="form-group">
+                    <label><Mail size={14} style={{ display: 'inline', marginRight: 4 }} /> อีเมล</label>
+                    <input
+                      type="email"
+                      className="input-pastel"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="email@example.com"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                <div className="form-group">
-                  <label><Calendar size={14} style={{ display: 'inline', marginRight: 4 }} /> อายุ (ปี)</label>
-                  <input
-                    type="number"
-                    min="15"
-                    max="99"
-                    className="input-pastel"
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
-                    placeholder="เช่น 25"
-                  />
+              {/* Section 2: ข้อมูลการทำงานและความพร้อม */}
+              <div style={{ marginBottom: 16, paddingTop: 12, borderTop: '1px dashed #E2E8F0' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#7A52C7', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Briefcase size={15} /> ข้อมูลการทำงานและความพร้อม
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div className="form-group">
+                    <label><Briefcase size={14} style={{ display: 'inline', marginRight: 4 }} /> ตำแหน่งงานที่สนใจ *</label>
+                    <select
+                      className="input-pastel"
+                      value={position}
+                      onChange={(e) => setPosition(e.target.value)}
+                      required
+                    >
+                      <option value="">-- เลือกตำแหน่งงาน --</option>
+                      {positions.map((item) => <option key={item.id} value={item.name}>{item.name}{item.department ? ` — ${item.department}` : ''}</option>)}
+                    </select>
+                    {positions.length === 0 && <small style={{ color: '#D35400' }}>ยังไม่มีตำแหน่งที่เปิดรับสมัคร กรุณาติดต่อ HR</small>}
+                  </div>
+
+                  <div className="form-group">
+                    <label><DollarSign size={14} style={{ display: 'inline', marginRight: 4 }} /> เงินเดือนที่คาดหวัง (บาท/เดือน) *</label>
+                    <input
+                      type="number"
+                      className="input-pastel"
+                      value={expectedSalary}
+                      onChange={(e) => setExpectedSalary(e.target.value)}
+                      placeholder="เช่น 35000"
+                      required
+                    />
+                  </div>
                 </div>
 
-                <div className="form-group">
-                  <label><Car size={14} style={{ display: 'inline', marginRight: 4 }} /> ยานพาหนะ</label>
-                  <select
-                    className="input-pastel"
-                    value={vehicle}
-                    onChange={(e) => setVehicle(e.target.value)}
-                  >
-                    <option value="ไม่มี">ไม่มี (None)</option>
-                    <option value="รถจักรยานยนต์">รถจักรยานยนต์ (Motorcycle)</option>
-                    <option value="รถยนต์">รถยนต์ (Car)</option>
-                    <option value="รถจักรยานยนต์ และ รถยนต์">รถจักรยานยนต์ และ รถยนต์</option>
-                    <option value="อื่นๆ">อื่นๆ</option>
-                  </select>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 10 }}>
+                  <div className="form-group">
+                    <label><Car size={14} style={{ display: 'inline', marginRight: 4 }} /> ยานพาหนะส่วนตัว</label>
+                    <select
+                      className="input-pastel"
+                      value={vehicle}
+                      onChange={(e) => setVehicle(e.target.value)}
+                    >
+                      <option value="ไม่มี">ไม่มี (None)</option>
+                      <option value="รถจักรยานยนต์">รถจักรยานยนต์ (Motorcycle)</option>
+                      <option value="รถยนต์">รถยนต์ (Car)</option>
+                      <option value="รถจักรยานยนต์ และ รถยนต์">รถจักรยานยนต์ และ รถยนต์</option>
+                      <option value="อื่นๆ">อื่นๆ</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label><Award size={14} style={{ display: 'inline', marginRight: 4 }} /> ประวัติการทำงานสรุป</label>
+                    <input
+                      type="text"
+                      className="input-pastel"
+                      value={experience}
+                      onChange={(e) => setExperience(e.target.value)}
+                      placeholder="ระบุประสบการณ์ทำงานโดยย่อ..."
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="form-group">
-                <label><FileText size={14} style={{ display: 'inline', marginRight: 4 }} /> รายละเอียดเพิ่มเติม</label>
-                <textarea
-                  className="input-pastel"
-                  rows={3}
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="ทักษะความสามารถ หรือวันพร้อมเริ่มงาน..."
-                />
+              {/* Section 3: รายละเอียดเพิ่มเติม */}
+              <div style={{ marginBottom: 16, paddingTop: 12, borderTop: '1px dashed #E2E8F0' }}>
+                <div className="form-group">
+                  <label><FileText size={14} style={{ display: 'inline', marginRight: 4 }} /> รายละเอียดเพิ่มเติม</label>
+                  <textarea
+                    className="input-pastel"
+                    rows={3}
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="ทักษะความสามารถ หรือวันพร้อมเริ่มงาน..."
+                  />
+                </div>
               </div>
 
               <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
