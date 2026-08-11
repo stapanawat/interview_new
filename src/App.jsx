@@ -396,12 +396,56 @@ function AdminApp() {
 }
 
 function PublicApplicationPage({ lineUserId }) {
+  const [closed, setClosed] = useState(false);
+
+  if (closed) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)',
+        padding: 20,
+        fontFamily: 'Inter, prompt, sans-serif'
+      }}>
+        <div className="pastel-card" style={{ maxWidth: 480, width: '100%', textAlign: 'center', padding: '40px 24px' }}>
+          <div style={{
+            width: 64,
+            height: 64,
+            borderRadius: '50%',
+            background: '#E8F5E9',
+            color: '#2E7D32',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 16
+          }}>
+            <CheckCircle2 size={36} />
+          </div>
+          <h2 style={{ fontSize: '1.4rem', color: '#2D3436', fontWeight: 600, marginBottom: 8 }}>
+            ยื่นใบสมัครเรียบร้อยแล้ว
+          </h2>
+          <p style={{ color: '#636E72', fontSize: '0.9rem', lineHeight: 1.6, margin: 0 }}>
+            ขอบคุณสำหรับความสนใจร่วมงานกับเรา คุณสามารถปิดหน้าต่างนี้เพื่อกลับไปยัง LINE ได้เลยค่ะ
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <JobApplicationForm
-      lineUserId={lineUserId}
-      onClose={() => window.location.assign('/')}
-      onSuccess={() => {}}
-    />
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)',
+      padding: 20
+    }}>
+      <JobApplicationForm
+        lineUserId={lineUserId}
+        onClose={() => setClosed(true)}
+        onSuccess={() => setClosed(true)}
+      />
+    </div>
   );
 }
 
