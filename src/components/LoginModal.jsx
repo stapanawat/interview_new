@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, User, ShieldAlert, CheckCircle2, KeyRound, UserPlus } from 'lucide-react';
+import { toHumanError } from '../utils/errorHelper';
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
   const [mode, setMode] = useState('login'); // 'login' or 'register'
@@ -34,7 +35,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'การทำรายการล้มเหลว');
+        throw new Error(data.error || 'ไม่สามารถทำรายการได้');
       }
 
       if (mode === 'register') {
@@ -52,7 +53,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
         }, 800);
       }
     } catch (err) {
-      setError(err.message);
+      setError(toHumanError(err, 'ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง'));
     } finally {
       setLoading(false);
     }
@@ -65,6 +66,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
         <div style={{ display: 'flex', background: '#F0F4F8', borderRadius: 14, padding: 4, marginBottom: 20 }}>
           <button
             type="button"
+            disabled={loading}
             onClick={() => { setMode('login'); setError(''); setSuccessMsg(''); }}
             style={{
               flex: 1,
@@ -74,7 +76,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
               background: mode === 'login' ? 'white' : 'transparent',
               color: mode === 'login' ? '#2D3436' : '#636E72',
               fontWeight: mode === 'login' ? 600 : 400,
-              cursor: 'pointer',
+              cursor: loading ? 'not-allowed' : 'pointer',
               boxShadow: mode === 'login' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
               transition: 'all 0.2s'
             }}
@@ -83,6 +85,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
           </button>
           <button
             type="button"
+            disabled={loading}
             onClick={() => { setMode('register'); setError(''); setSuccessMsg(''); }}
             style={{
               flex: 1,
@@ -92,7 +95,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
               background: mode === 'register' ? 'white' : 'transparent',
               color: mode === 'register' ? '#2D3436' : '#636E72',
               fontWeight: mode === 'register' ? 600 : 400,
-              cursor: 'pointer',
+              cursor: loading ? 'not-allowed' : 'pointer',
               boxShadow: mode === 'register' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
               transition: 'all 0.2s'
             }}
@@ -147,6 +150,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                   type="text"
                   className="input-pastel"
                   value={name}
+                  disabled={loading}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="เช่น สมชาย รักษ์ดี"
                   required
@@ -158,6 +162,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                 <select
                   className="input-pastel"
                   value={role}
+                  disabled={loading}
                   onChange={(e) => setRole(e.target.value)}
                 >
                   <option value="HR Manager">HR Manager</option>
@@ -176,6 +181,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                 type="text"
                 className="input-pastel"
                 value={username}
+                disabled={loading}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="ระบุชื่อผู้ใช้งาน"
                 required
@@ -192,6 +198,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                 type="password"
                 className="input-pastel"
                 value={password}
+                disabled={loading}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="ระบุรหัสผ่าน"
                 required
@@ -202,7 +209,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
           </div>
 
           <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
-            <button type="button" className="btn-pastel btn-pastel-secondary" onClick={onClose} style={{ flex: 1 }}>
+            <button type="button" className="btn-pastel btn-pastel-secondary" onClick={onClose} disabled={loading} style={{ flex: 1 }}>
               ยกเลิก
             </button>
             <button type="submit" className="btn-pastel btn-pastel-primary" disabled={loading} style={{ flex: 1.5 }}>

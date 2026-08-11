@@ -40,8 +40,14 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenLog
             className={`sidebar-item sidebar-tooltip ${activeTab === id ? 'is-active' : ''} ${accent ? 'is-line' : ''}`}
             aria-label={label}
             aria-current={activeTab === id ? 'page' : undefined}
-            data-tooltip={label}
-            onClick={() => setActiveTab(id)}
+            data-tooltip={currentUser ? label : `${label} (ต้องเข้าสู่ระบบก่อน)`}
+            onClick={() => {
+              if (!currentUser) {
+                onOpenLogin();
+              } else {
+                setActiveTab(id);
+              }
+            }}
           >
             <Icon size={21} />
             <span className="sidebar-label">{label}</span>

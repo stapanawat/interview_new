@@ -3,6 +3,7 @@ import { Calendar, CheckCircle, Clock, Search, Filter, Plus, MessageCircle, Aler
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import { toHumanError } from '../utils/errorHelper';
 
 export default function ApplicantList({ applicants, onRefresh, onScheduleInterview, onOpenEmployeeTab, currentUser }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -135,7 +136,7 @@ export default function ApplicantList({ applicants, onRefresh, onScheduleIntervi
 
       onRefresh();
     } catch (err) {
-      alert('เกิดข้อผิดพลาด: ' + err.message);
+      alert('เกิดข้อผิดพลาด: ' + toHumanError(err, 'ไม่สามารถเปลี่ยนสถานะผู้สมัครได้'));
     } finally {
       setUpdatingId(null);
     }

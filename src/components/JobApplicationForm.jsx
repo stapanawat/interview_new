@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Send, Sparkles, CheckCircle2, User, Mail, Phone, Briefcase, DollarSign, Award, FileText, Calendar, Car } from 'lucide-react';
+import { toHumanError } from '../utils/errorHelper';
 
 export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
   const [name, setName] = useState('');
@@ -55,7 +56,7 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
         if (onSuccess) onSuccess(data.applicant);
       }, 1400);
     } catch (err) {
-      alert('เกิดข้อผิดพลาด: ' + err.message);
+      alert('เกิดข้อผิดพลาด: ' + toHumanError(err, 'ไม่สามารถส่งใบสมัครงานได้'));
     } finally {
       setLoading(false);
     }
@@ -119,6 +120,7 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
                       type="text"
                       className="input-pastel"
                       value={name}
+                      disabled={loading}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="กรอกชื่อ - นามสกุล"
                       required
@@ -133,6 +135,7 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
                       max="99"
                       className="input-pastel"
                       value={age}
+                      disabled={loading}
                       onChange={(e) => setAge(e.target.value)}
                       placeholder="เช่น 25"
                     />
@@ -146,6 +149,7 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
                       type="tel"
                       className="input-pastel"
                       value={phone}
+                      disabled={loading}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="กรอกเบอร์โทรศัพท์ติดต่อ"
                       required
@@ -158,6 +162,7 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
                       type="email"
                       className="input-pastel"
                       value={email}
+                      disabled={loading}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="email@example.com"
                     />
@@ -176,6 +181,7 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
                     <select
                       className="input-pastel"
                       value={position}
+                      disabled={loading}
                       onChange={(e) => setPosition(e.target.value)}
                       required
                     >
@@ -191,6 +197,7 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
                       type="number"
                       className="input-pastel"
                       value={expectedSalary}
+                      disabled={loading}
                       onChange={(e) => setExpectedSalary(e.target.value)}
                       placeholder="เช่น 35000"
                       required
@@ -204,6 +211,7 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
                     <select
                       className="input-pastel"
                       value={vehicle}
+                      disabled={loading}
                       onChange={(e) => setVehicle(e.target.value)}
                     >
                       <option value="ไม่มี">ไม่มี (None)</option>
@@ -220,6 +228,7 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
                       type="text"
                       className="input-pastel"
                       value={experience}
+                      disabled={loading}
                       onChange={(e) => setExperience(e.target.value)}
                       placeholder="ระบุประสบการณ์ทำงานโดยย่อ..."
                     />
@@ -235,6 +244,7 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
                     className="input-pastel"
                     rows={3}
                     value={notes}
+                    disabled={loading}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="ทักษะความสามารถ หรือวันพร้อมเริ่มงาน..."
                   />
@@ -242,7 +252,7 @@ export default function JobApplicationForm({ lineUserId, onClose, onSuccess }) {
               </div>
 
               <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
-                <button type="button" className="btn-pastel btn-pastel-secondary" onClick={onClose} style={{ flex: 1 }}>
+                <button type="button" className="btn-pastel btn-pastel-secondary" onClick={onClose} disabled={loading} style={{ flex: 1 }}>
                   ปิดหน้าต่าง
                 </button>
                 <button type="submit" className="btn-pastel btn-pastel-success" disabled={loading} style={{ flex: 1.5 }}>

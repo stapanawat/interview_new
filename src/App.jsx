@@ -9,7 +9,7 @@ import EmployeeManagement from './components/EmployeeManagement';
 import AuditLogView from './components/AuditLogView';
 import PositionManagement from './components/PositionManagement';
 
-import { Users, Calendar, UserCheck, ShieldCheck, Plus, Sparkles, Clock, CheckCircle2, HeartHandshake } from 'lucide-react';
+import { Users, Calendar, UserCheck, ShieldCheck, Plus, Sparkles, Clock, CheckCircle2, HeartHandshake, Lock, KeyRound } from 'lucide-react';
 
 function AdminApp() {
   const [activeTab, setActiveTab] = useState('applicants');
@@ -147,103 +147,139 @@ function AdminApp() {
       <div className="app-content">
         {/* Main App Container */}
         <main style={{ maxWidth: 1280, width: '100%', margin: '24px auto', padding: '0 20px', flex: 1 }}>
-        {/* Quick Analytics Banner Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 24 }}>
-          <div className="pastel-card" style={{ background: 'linear-gradient(135deg, #FFF0F5 0%, #FFFFFF 100%)', display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: '#F8A5C2', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Users size={24} />
+        {!currentUser ? (
+          <div className="pastel-card" style={{ textAlign: 'center', padding: '60px 24px', margin: '40px auto', maxWidth: 520, borderRadius: 24, boxShadow: '0 12px 32px rgba(0, 0, 0, 0.08)' }}>
+            <div style={{
+              width: 72,
+              height: 72,
+              borderRadius: '50%',
+              background: '#FFF3E0',
+              color: '#E65100',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 20
+            }}>
+              <Lock size={36} />
             </div>
-            <div>
-              <div style={{ fontSize: '0.85rem', color: '#636E72' }}>ผู้สมัครงานทั้งหมด</div>
-              <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#2D3436' }}>{applicants.length} คน</div>
-            </div>
+            <h2 style={{ fontSize: '1.45rem', color: '#2D3436', fontWeight: 700, margin: '0 0 10px' }}>
+              จำเป็นต้องเข้าสู่ระบบก่อนใช้งาน
+            </h2>
+            <p style={{ color: '#636E72', fontSize: '0.9rem', lineHeight: 1.6, margin: '0 0 24px' }}>
+              ระบบล็อกการเข้าถึงข้อมูลทั้งหมดเพื่อความปลอดภัย <br />
+              และการบันทึกประวัติกิจกรรม (Audit Log) กรุณาเข้าสู่ระบบบัญชีผู้ดูแลระบบค่ะ
+            </p>
+            <button
+              onClick={() => setIsLoginOpen(true)}
+              className="btn-pastel btn-pastel-primary"
+              style={{ padding: '12px 28px', fontSize: '1rem', borderRadius: 14 }}
+            >
+              <KeyRound size={18} /> เข้าสู่ระบบผู้ดูแลระบบ (Login)
+            </button>
           </div>
+        ) : (
+          <>
+            {/* Quick Analytics Banner Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 24 }}>
+              <div className="pastel-card" style={{ background: 'linear-gradient(135deg, #FFF0F5 0%, #FFFFFF 100%)', display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 14, background: '#F8A5C2', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Users size={24} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.85rem', color: '#636E72' }}>ผู้สมัครงานทั้งหมด</div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#2D3436' }}>{applicants.length} คน</div>
+                </div>
+              </div>
 
-          <div className="pastel-card" style={{ background: 'linear-gradient(135deg, #F3E8FF 0%, #FFFFFF 100%)', display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: '#B892FF', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Clock size={24} />
-            </div>
-            <div>
-              <div style={{ fontSize: '0.85rem', color: '#636E72' }}>รอยืนยันสัมภาษณ์ (12 ชม.)</div>
-              <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#7A52C7' }}>
-                {interviews.filter(i => i.confirmationStatus === 'Pending_Confirmation').length} รายการ
+              <div className="pastel-card" style={{ background: 'linear-gradient(135deg, #F3E8FF 0%, #FFFFFF 100%)', display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 14, background: '#B892FF', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Clock size={24} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.85rem', color: '#636E72' }}>รอยืนยันสัมภาษณ์ (12 ชม.)</div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#7A52C7' }}>
+                    {interviews.filter(i => i.confirmationStatus === 'Pending_Confirmation').length} รายการ
+                  </div>
+                </div>
+              </div>
+
+              <div className="pastel-card" style={{ background: 'linear-gradient(135deg, #E8F5E9 0%, #FFFFFF 100%)', display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 14, background: '#55E6C1', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <CheckCircle2 size={24} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.85rem', color: '#636E72' }}>พนักงานในระบบ (Employee)</div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#2E7D32' }}>{employees.length} คน</div>
+                </div>
+              </div>
+
+              <div className="pastel-card" style={{ background: 'linear-gradient(135deg, #EBF8FF 0%, #FFFFFF 100%)', display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 14, background: '#70A1FF', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ShieldCheck size={24} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.85rem', color: '#636E72' }}>ประวัติ Audit Log</div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#2980B9' }}>{auditLogs.length} บันทึก</div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="pastel-card" style={{ background: 'linear-gradient(135deg, #E8F5E9 0%, #FFFFFF 100%)', display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: '#55E6C1', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CheckCircle2 size={24} />
-            </div>
-            <div>
-              <div style={{ fontSize: '0.85rem', color: '#636E72' }}>พนักงานในระบบ (Employee)</div>
-              <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#2E7D32' }}>{employees.length} คน</div>
-            </div>
-          </div>
+            {/* Tab Contents */}
+            {activeTab === 'applicants' && (
+              <ApplicantList
+                applicants={applicants}
+                onRefresh={loadAllData}
+                onScheduleInterview={handleOpenScheduleModal}
+                onOpenEmployeeTab={() => setActiveTab('employees')}
+                currentUser={currentUser}
+              />
+            )}
 
-          <div className="pastel-card" style={{ background: 'linear-gradient(135deg, #EBF8FF 0%, #FFFFFF 100%)', display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: '#70A1FF', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ShieldCheck size={24} />
-            </div>
-            <div>
-              <div style={{ fontSize: '0.85rem', color: '#636E72' }}>ประวัติ Audit Log</div>
-              <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#2980B9' }}>{auditLogs.length} บันทึก</div>
-            </div>
-          </div>
-        </div>
+            {activeTab === 'interviews' && (
+              <InterviewScheduleView
+                interviews={interviews}
+                onRefresh={loadAllData}
+                onScheduleNew={() => {
+                  if (applicants.length > 0) handleOpenScheduleModal(applicants[0]);
+                  else alert('ยังไม่มีรายการผู้สมัครในระบบ');
+                }}
+              />
+            )}
 
-        {/* Tab Contents */}
-        {activeTab === 'applicants' && (
-          <ApplicantList
-            applicants={applicants}
-            onRefresh={loadAllData}
-            onScheduleInterview={handleOpenScheduleModal}
-            onOpenEmployeeTab={() => setActiveTab('employees')}
-            currentUser={currentUser}
-          />
-        )}
+            {activeTab === 'employees' && (
+              <EmployeeManagement
+                employees={employees}
+                positions={positions}
+                onRefresh={loadAllData}
+                currentUser={currentUser}
+              />
+            )}
 
-        {activeTab === 'interviews' && (
-          <InterviewScheduleView
-            interviews={interviews}
-            onRefresh={loadAllData}
-            onScheduleNew={() => {
-              if (applicants.length > 0) handleOpenScheduleModal(applicants[0]);
-              else alert('ยังไม่มีรายการผู้สมัครในระบบ');
-            }}
-          />
-        )}
+            {activeTab === 'positions' && (
+              <PositionManagement positions={positions} onRefresh={loadAllData} currentUser={currentUser} />
+            )}
 
-        {activeTab === 'employees' && (
-          <EmployeeManagement
-            employees={employees}
-            positions={positions}
-            onRefresh={loadAllData}
-            currentUser={currentUser}
-          />
-        )}
+            {activeTab === 'audit-logs' && (
+              <AuditLogView auditLogs={auditLogs} />
+            )}
 
-        {activeTab === 'positions' && (
-          <PositionManagement positions={positions} onRefresh={loadAllData} currentUser={currentUser} />
-        )}
-
-        {activeTab === 'audit-logs' && (
-          <AuditLogView auditLogs={auditLogs} />
-        )}
-
-        {activeTab === 'line-sim' && (
-          <LineSimulator
-            lineUserId={selectedLineUserId}
-            setLineUserId={setSelectedLineUserId}
-            onOpenForm={handleOpenForm}
-          />
+            {activeTab === 'line-sim' && (
+              <LineSimulator
+                lineUserId={selectedLineUserId}
+                setLineUserId={setSelectedLineUserId}
+                onOpenForm={handleOpenForm}
+              />
+            )}
+          </>
         )}
         </main>
 
       {/* Login Modal */}
       <LoginModal
         isOpen={isLoginOpen}
-        onClose={() => setIsLoginOpen(false)}
+        onClose={() => {
+          if (currentUser) setIsLoginOpen(false);
+        }}
         onLoginSuccess={(user) => {
           setCurrentUser(user);
           loadAllData();

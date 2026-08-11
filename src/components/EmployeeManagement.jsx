@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { UserCheck, Plus, Edit, Trash2, Search, DollarSign, Mail, Phone, FileText, CheckCircle2, User } from 'lucide-react';
+import { toHumanError } from '../utils/errorHelper';
 
 export default function EmployeeManagement({ employees, positions, onRefresh, currentUser }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -85,7 +86,7 @@ export default function EmployeeManagement({ employees, positions, onRefresh, cu
       setIsModalOpen(false);
       onRefresh();
     } catch (err) {
-      alert('เกิดข้อผิดพลาด: ' + err.message);
+      alert('เกิดข้อผิดพลาด: ' + toHumanError(err, 'ไม่สามารถบันทึกข้อมูลพนักงานได้'));
     } finally {
       setLoading(false);
     }
@@ -105,7 +106,7 @@ export default function EmployeeManagement({ employees, positions, onRefresh, cu
 
       onRefresh();
     } catch (err) {
-      alert('เกิดข้อผิดพลาด: ' + err.message);
+      alert('เกิดข้อผิดพลาด: ' + toHumanError(err, 'ไม่สามารถลบข้อมูลพนักงานได้'));
     }
   };
 
@@ -296,6 +297,7 @@ export default function EmployeeManagement({ employees, positions, onRefresh, cu
                     type="text"
                     className="input-pastel"
                     value={name}
+                    disabled={loading}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="กรอกชื่อ - นามสกุล"
                     required
@@ -307,6 +309,7 @@ export default function EmployeeManagement({ employees, positions, onRefresh, cu
                   <select
                     className="input-pastel"
                     value={position}
+                    disabled={loading}
                     onChange={(e) => setPosition(e.target.value)}
                     required
                   >
@@ -323,6 +326,7 @@ export default function EmployeeManagement({ employees, positions, onRefresh, cu
                     type="email"
                     className="input-pastel"
                     value={email}
+                    disabled={loading}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
                   />
@@ -334,6 +338,7 @@ export default function EmployeeManagement({ employees, positions, onRefresh, cu
                     type="tel"
                     className="input-pastel"
                     value={phone}
+                    disabled={loading}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="กรอกเบอร์โทรศัพท์"
                     required
@@ -347,6 +352,7 @@ export default function EmployeeManagement({ employees, positions, onRefresh, cu
                   type="number"
                   className="input-pastel"
                   value={monthlySalary}
+                  disabled={loading}
                   onChange={(e) => setMonthlySalary(e.target.value)}
                   placeholder="กรอกจำนวนเงินเดือน"
                   required
@@ -359,13 +365,14 @@ export default function EmployeeManagement({ employees, positions, onRefresh, cu
                   className="input-pastel"
                   rows={3}
                   value={notes}
+                  disabled={loading}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="ระบุสวัสดิการ, รายละเอียดสัญญา หรือข้อความเพิ่มเติม..."
                 />
               </div>
 
               <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
-                <button type="button" className="btn-pastel btn-pastel-secondary" onClick={() => setIsModalOpen(false)} style={{ flex: 1 }}>
+                <button type="button" className="btn-pastel btn-pastel-secondary" onClick={() => setIsModalOpen(false)} disabled={loading} style={{ flex: 1 }}>
                   ยกเลิก
                 </button>
                 <button type="submit" className="btn-pastel btn-pastel-primary" disabled={loading} style={{ flex: 1.5 }}>
