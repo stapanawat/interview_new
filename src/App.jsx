@@ -14,11 +14,20 @@ import { initLiff } from './utils/liff';
 import { Users, Calendar, UserCheck, ShieldCheck, Plus, Sparkles, Clock, CheckCircle2, HeartHandshake, Lock, KeyRound, XCircle } from 'lucide-react';
 
 function AdminApp() {
+  const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 นาที
+
   const [activeTab, setActiveTab] = useState('applicants');
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const saved = localStorage.getItem('interview_current_user');
-      return saved ? JSON.parse(saved) : null;
+      if (!saved) return null;
+      const parsed = JSON.parse(saved);
+      const lastAct = parsed.lastActivity || parsed.loginTime || 0;
+      if (lastAct && Date.now() - lastAct > SESSION_TIMEOUT_MS) {
+        localStorage.removeItem('interview_current_user');
+        return null;
+      }
+      return parsed;
     } catch {
       return null;
     }
@@ -43,6 +52,68 @@ function AdminApp() {
   const [employees, setEmployees] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
   const [positions, setPositions] = useState([]);
+
+  const handleSessionExpired = async (userToExpire) => {
+    const targetUser = userToExpire || currentUser;
+    if (targetUser) {
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: targetUser.username,
+            userName: targetUser.name,
+            reason: 'SESSION_EXPIRED'
+          })
+        });
+      } catch (e) {}
+    }
+    try { localStorage.removeItem('interview_current_user'); } catch (e) {}
+    setCurrentUser(null);
+    setIsLoginOpen(true);
+    showErrorAlert(
+      'เซสชันหมดอายุ (Session Expired)',
+      'ระบบทำการออกจากระบบอัตโนมัติเนื่องจากไม่มีการใช้งานเกิน 30 นาที กรุณาเข้าสู่ระบบใหม่อีกครั้งค่ะ'
+    );
+  };
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const updateActivity = () => {
+      const saved = localStorage.getItem('interview_current_user');
+      if (!saved) return;
+      try {
+        const parsed = JSON.parse(saved);
+        const now = Date.now();
+        if (now - (parsed.lastActivity || 0) > 10000) {
+          parsed.lastActivity = now;
+          localStorage.setItem('interview_current_user', JSON.stringify(parsed));
+        }
+      } catch (e) {}
+    };
+
+    const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    activityEvents.forEach((evt) => window.addEventListener(evt, updateActivity, { passive: true }));
+
+    const checkInterval = setInterval(() => {
+      const saved = localStorage.getItem('interview_current_user');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          const lastAct = parsed.lastActivity || parsed.loginTime || 0;
+          if (lastAct && Date.now() - lastAct > SESSION_TIMEOUT_MS) {
+            handleSessionExpired(parsed);
+          }
+        } catch (e) {}
+      }
+    }, 15000);
+
+    return () => {
+      activityEvents.forEach((evt) => window.removeEventListener(evt, updateActivity));
+      clearInterval(checkInterval);
+    };
+  }, [currentUser]);
 
   const loadAllData = async () => {
     try {
@@ -288,8 +359,13 @@ function AdminApp() {
           if (currentUser) setIsLoginOpen(false);
         }}
         onLoginSuccess={(user) => {
-          setCurrentUser(user);
-          try { localStorage.setItem('interview_current_user', JSON.stringify(user)); } catch (e) { console.error(e); }
+          const userWithSession = {
+            ...user,
+            loginTime: Date.now(),
+            lastActivity: Date.now()
+          };
+          setCurrentUser(userWithSession);
+          try { localStorage.setItem('interview_current_user', JSON.stringify(userWithSession)); } catch (e) { console.error(e); }
           setIsLoginOpen(false);
           loadAllData();
         }}

@@ -90,12 +90,13 @@ router.post('/register', async (req, res) => {
 
 // Logout endpoint
 router.post('/logout', async (req, res) => {
-  const { username, userName } = req.body;
+  const { username, userName, reason } = req.body;
+  const isExpired = reason === 'SESSION_EXPIRED';
   await logAudit({
     user: username || 'admin',
     userName: userName || 'ผู้ดูแลระบบ',
-    action: 'LOGOUT',
-    details: 'ออกจากระบบเรียบร้อยแล้ว',
+    action: isExpired ? 'SESSION_EXPIRED' : 'LOGOUT',
+    details: isExpired ? 'เซสชันหมดอายุอัตโนมัติเนื่องจากไม่มีการใช้งานเกิน 30 นาที (Auto Session Timeout)' : 'ออกจากระบบเรียบร้อยแล้ว',
     req
   });
   res.json({ message: 'ออกจากระบบสำเร็จ' });
