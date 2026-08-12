@@ -514,29 +514,56 @@ function PublicApplicationPage({ lineUserId }) {
   );
 }
 
-function getApplicationLinkParams() {
+function getRouteInfo() {
   const url = new URL(window.location.href);
   const normalizedPath = url.pathname.replace(/\/+$/, '').toLowerCase() || '/';
-  const isApplyPath = normalizedPath === '/apply';
-  const isLegacyApplyHash = url.hash.toLowerCase().startsWith('#apply');
+  const hash = url.hash.toLowerCase();
 
-  if (!isApplyPath && !isLegacyApplyHash) return null;
+  const isAdminPath = normalizedPath === '/admin' || normalizedPath.startsWith('/admin/') || hash.startsWith('#admin');
+  const isApplyPath = normalizedPath === '/apply' || normalizedPath.startsWith('/apply/') || hash.startsWith('#apply');
 
-  const query = isLegacyApplyHash ? url.hash.slice('#apply'.length) : url.search;
-  return new URLSearchParams(query);
-}
-
-// The URL is intentionally handled outside the admin dashboard.  This keeps the
-// candidate's application link public and avoids opening the HR login/dashboard.
-export default function App() {
-  const applicationParams = getApplicationLinkParams();
-
-  // This route gate deliberately runs before AdminApp is mounted.  Therefore an
-  // application URL can never fall through to the dashboard, even without a LINE ID.
-  if (applicationParams) {
-    const params = applicationParams;
-    return <PublicApplicationPage lineUserId={params.get('lineUserId') || ''} />;
+  let searchParams = url.search;
+  if (hash.startsWith('#apply')) {
+    searchParams = hash.slice('#apply'.length);
+  } else if (hash.startsWith('#admin')) {
+    searchParams = hash.slice('#admin'.length);
   }
 
-  return <AdminApp />;
+  return {
+    isAdminPath,
+    isApplyPath,
+    params: new URLSearchParams(searchParams)
+  };
 }
+
+// Route Gate:
+// - /admin -> HR Admin Dashboard
+// - /apply -> Candidate Application Form
+// - Root (/) or any other path -> Auto-redirects to /apply and renders Candidate Application Form
+export default function App() {
+  const [routeInfo, setRouteInfo] = useState(() => getRouteInfo());
+
+  useEffect(() => {
+    const handlePopState = () => setRouteInfo(getRouteInfo());
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  useEffect(() => {
+    if (!routeInfo.isAdminPath && !routeInfo.isApplyPath) {
+      const search = window.location.search;
+      const targetUrl = `/apply${search}`;
+      if (window.location.pathname !== '/apply') {
+        window.history.replaceState(null, '', targetUrl);
+        setRouteInfo(getRouteInfo());
+      }
+    }
+  }, [routeInfo]);
+
+  if (routeInfo.isAdminPath) {
+    return <AdminApp />;
+  }
+
+  return <PublicApplicationPage lineUserId={routeInfo.params.get('lineUserId') || ''} />;
+}
+
